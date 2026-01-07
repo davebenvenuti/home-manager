@@ -35,12 +35,17 @@
           modules = [ ./home.nix ];
           extraSpecialArgs = extraSpecialArgs;
         };
+      
+      # Configuration for current system (impure)
+      currentSystem = builtins.currentSystem;
+      homeConfigForCurrentSystem = mkHomeConfig currentSystem;
     in
     {
-      # Home configurations per system
+      # Home configurations
       homeConfigurations = {
         "dave@linux" = mkHomeConfig "x86_64-linux";
         "dave@darwin" = mkHomeConfig "aarch64-darwin";
+        "dave" = homeConfigForCurrentSystem;
       };
 
       # Default package for `nix run`
@@ -48,10 +53,15 @@
         (mkHomeConfig system).activationPackage
       );
 
-      # Legacy attribute for compatibility
+      # Packages per system
       packages = forAllSystems (system: {
+        "home-manager-configuration" = (mkHomeConfig system).activationPackage;
+      });
+
+      # Legacy packages for compatibility with home-manager's lookup
+      legacyPackages = forAllSystems (system: {
         homeConfigurations = {
-          "dave" = (mkHomeConfig system).activationPackage;
+          "dave" = (mkHomeConfig system);
         };
       });
     };
