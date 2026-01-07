@@ -35,17 +35,14 @@
           modules = [ ./home.nix ];
           extraSpecialArgs = extraSpecialArgs;
         };
-      
-      # Configuration for current system (impure)
-      currentSystem = builtins.currentSystem;
-      homeConfigForCurrentSystem = mkHomeConfig currentSystem;
     in
     {
       # Home configurations
       homeConfigurations = {
         "dave@linux" = mkHomeConfig "x86_64-linux";
         "dave@darwin" = mkHomeConfig "aarch64-darwin";
-        "dave" = homeConfigForCurrentSystem;
+        # dave is a function that takes a system and returns a configuration
+        "dave" = { system }: mkHomeConfig system;
       };
 
       # Default package for `nix run`
