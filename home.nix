@@ -112,7 +112,4 @@ in
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-
-  # Backup files instead of failing
-  home-manager.backupFileExtension = "backup";
 }
