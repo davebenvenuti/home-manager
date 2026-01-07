@@ -8,6 +8,14 @@ My personal nix configuration.
 
 Install [Deterministic Nix](https://github.com/DeterminateSystems/nix-installer) `curl -fsSL https://install.determinate.systems/nix | sh -s -- install`
 
+## Setup this home-manager config
+
+```bash
+git clone git@github.com:davebenvenuti/home-manager.git ~/.config/home-manager
+
+nix run home-manager/master -- --switch
+```
+
 ## Apply
 
 `home-manager switch`
