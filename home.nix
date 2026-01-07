@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -28,6 +28,8 @@
     pkgs.zsh
     # Tig - text-mode interface for Git
     pkgs.tig
+    # Emacs without X11 GUI
+    pkgs.emacs-nox
 
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
@@ -65,6 +67,8 @@
     # ".zshrc".source = dotfiles/zshrc;  # Now managed via programs.zsh
 
     "Library/Application Support/com.mitchellh.ghostty/config".source = dotfiles/ghostty/config;
+    
+    # Emacs configuration is handled via activation script below
   };
 
   # Home Manager can also manage your environment variables through
@@ -94,6 +98,20 @@
     ./home/tmux.nix
     ./home/zsh.nix
   ];
+
+  # Activation scripts run after configuration is applied
+  # TODO: Switch to fetchFromGitHub for reproducible setup of emacs configuration
+  home.activation = {
+    cloneEmacsConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      EMACS_DIR="$HOME/.emacs.d"
+      if [ ! -d "$EMACS_DIR" ]; then
+        echo "Cloning emacs configuration repository..."
+        ${pkgs.git}/bin/git clone git@github.com:davebenvenuti/emacs.d.git "$EMACS_DIR"
+      else
+        echo "Emacs configuration already exists at $EMACS_DIR"
+      fi
+    '';
+  };
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
