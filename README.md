@@ -17,9 +17,15 @@ Use the [multiuser installer](https://nixos.org/download/#nix-install-linux)
 ## Setup this home-manager config
 
 ```bash
+# To get standalone home-manager to work, you have to init
+nix run home-manager/master -- init --switch
+
+# Get rid of the auto generated config (lol)
+rm -rf ~/.config/home-manager
+
 git clone git@github.com:davebenvenuti/home-manager.git ~/.config/home-manager
 
-nix run home-manager/master -- --switch
+home-manager switch
 ```
 
 ## Apply
