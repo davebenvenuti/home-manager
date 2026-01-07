@@ -22,27 +22,37 @@
       # Supported systems
       supportedSystems = [ "x86_64-linux" "aarch64-darwin" ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-    in
-    {
-      homeConfigurations = forAllSystems (system:
+      
+      # Function to create a home configuration for a given system
+      mkHomeConfig = system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
           isDarwin = system == "aarch64-darwin";
-          # Only pass darwin to home.nix if we're on Darwin
           extraSpecialArgs = if isDarwin then { inherit darwin; } else { };
         in
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-
-          # Specify your home configuration modules here, for example,
-          # the path to your home.nix.
-          modules = [
-            ./home.nix
-          ];
-
-          # Pass extra arguments to home.nix
+          modules = [ ./home.nix ];
           extraSpecialArgs = extraSpecialArgs;
-        }
+        };
+    in
+    {
+      # Home configurations per system
+      homeConfigurations = {
+        "dave@linux" = mkHomeConfig "x86_64-linux";
+        "dave@darwin" = mkHomeConfig "aarch64-darwin";
+      };
+
+      # Default package for `nix run`
+      defaultPackage = forAllSystems (system:
+        (mkHomeConfig system).activationPackage
       );
+
+      # Legacy attribute for compatibility
+      packages = forAllSystems (system: {
+        homeConfigurations = {
+          "dave" = (mkHomeConfig system).activationPackage;
+        };
+      });
     };
 }
