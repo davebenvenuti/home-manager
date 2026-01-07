@@ -41,8 +41,8 @@
       homeConfigurations = {
         "dave@linux" = mkHomeConfig "x86_64-linux";
         "dave@darwin" = mkHomeConfig "aarch64-darwin";
-        # dave is a function that takes a system and returns a configuration
-        "dave" = { system }: mkHomeConfig system;
+        # dave is an attribute set keyed by system
+        "dave" = forAllSystems (system: mkHomeConfig system);
       };
 
       # Default package for `nix run`
