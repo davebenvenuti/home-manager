@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, darwin ? null, ... }:
 
 let
   isMacOS = pkgs.stdenv.hostPlatform.isDarwin;
@@ -58,12 +58,12 @@ in
   home.file = 
     let
       baseFiles = {
-        ".aider.conf.yml".source = dotfiles/aider.conf.yml;
-        # ".tmux.conf".source = dotfiles/tmux.conf;  # Now managed via programs.tmux
-        # ".zshrc".source = dotfiles/zshrc;  # Now managed via programs.zsh
+        ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
+        # ".tmux.conf".source = ./dotfiles/tmux.conf;  # Now managed via programs.tmux
+        # ".zshrc".source = ./dotfiles/zshrc;  # Now managed via programs.zsh
       };
       macFiles = lib.optionalAttrs isMacOS {
-        "Library/Application Support/com.mitchellh.ghostty/config".source = dotfiles/ghostty/config;
+        "Library/Application Support/com.mitchellh.ghostty/config".source = ./dotfiles/ghostty/config;
       };
     in
     baseFiles // macFiles;
