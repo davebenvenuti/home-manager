@@ -24,6 +24,8 @@
     pkgs.tmux
     # Zsh will be installed via programs.zsh, but we can list it here for clarity
     pkgs.zsh
+    # Tig - text-mode interface for Git
+    pkgs.tig
 
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
