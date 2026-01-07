@@ -1,10 +1,14 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, darwin ? null, ... }:
+
+let
+  isMacOS = pkgs.stdenv.hostPlatform.isDarwin;
+in
 
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "dave";
-  home.homeDirectory = if pkgs.stdenv.hostPlatform.isDarwin
+  home.homeDirectory = if isMacOS
     then "/Users/dave"
     else "/home/dave";
 
@@ -51,25 +55,18 @@
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
-  home.file = {
-    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
-    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
-    # # symlink to the Nix store copy.
-    # ".screenrc".source = dotfiles/screenrc;
-
-    # # You can also set the file content immediately.
-    # ".gradle/gradle.properties".text = ''
-    #   org.gradle.console=verbose
-    #   org.gradle.daemon.idletimeout=3600000
-    # '';
-    ".aider.conf.yml".source = dotfiles/aider.conf.yml;
-    # ".tmux.conf".source = dotfiles/tmux.conf;  # Now managed via programs.tmux
-    # ".zshrc".source = dotfiles/zshrc;  # Now managed via programs.zsh
-
-    "Library/Application Support/com.mitchellh.ghostty/config".source = dotfiles/ghostty/config;
-    
-    # Emacs configuration is handled via activation script below
-  };
+  home.file = 
+    let
+      baseFiles = {
+        ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
+        # ".tmux.conf".source = ./dotfiles/tmux.conf;  # Now managed via programs.tmux
+        # ".zshrc".source = ./dotfiles/zshrc;  # Now managed via programs.zsh
+      };
+      macFiles = lib.optionalAttrs isMacOS {
+        "Library/Application Support/com.mitchellh.ghostty/config".source = ./dotfiles/ghostty/config;
+      };
+    in
+    baseFiles // macFiles;
 
   # Home Manager can also manage your environment variables through
   # 'home.sessionVariables'. These will be explicitly sourced when using a

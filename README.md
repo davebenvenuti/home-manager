@@ -8,6 +8,12 @@ My personal nix configuration.
 
 Install [Deterministic Nix](https://github.com/DeterminateSystems/nix-installer) `curl -fsSL https://install.determinate.systems/nix | sh -s -- install`
 
+### Linux
+
+Use the [multiuser installer](https://nixos.org/download/#nix-install-linux)
+
+`sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --daemon`
+
 ## Setup this home-manager config
 
 ```bash
@@ -26,7 +32,13 @@ If you get an error about clobber files, run
 
 ## Uninstalling Nix
 
+### Darwin
+
 `/nix/nix-installer uninstall`
+
+### Linux
+
+See [Nix Reference Manual | Uninstalling Nix](https://nix.dev/manual/nix/2.21/installation/uninstall#linux)
 
 ## Notes
 

@@ -17,24 +17,49 @@
     };
   };
 
-  outputs =
-    { nixpkgs, home-manager, darwin, ... }:
+  outputs = { nixpkgs, home-manager, darwin, ... }:
     let
-      system = "aarch64-darwin";
-      pkgs = nixpkgs.legacyPackages.${system};
+      # Supported systems
+      supportedSystems = [ "x86_64-linux" "aarch64-darwin" ];
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+      
+      # Function to create a home configuration for a given system
+      mkHomeConfig = system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          isDarwin = system == "aarch64-darwin";
+          extraSpecialArgs = if isDarwin then { inherit darwin; } else { };
+        in
+        home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          modules = [ ./home.nix ];
+          extraSpecialArgs = extraSpecialArgs;
+        };
     in
     {
-      homeConfigurations."dave" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-
-        # Specify your home configuration modules here, for example,
-        # the path to your home.nix.
-        modules = [
-          ./home.nix
-        ];
-
-        # Optionally use extraSpecialArgs
-        # to pass through arguments to home.nix
+      # Home configurations
+      homeConfigurations = {
+        "dave@linux" = mkHomeConfig "x86_64-linux";
+        "dave@darwin" = mkHomeConfig "aarch64-darwin";
+        # dave is an attribute set keyed by system
+        "dave" = forAllSystems (system: mkHomeConfig system);
       };
+
+      # Default package for `nix run`
+      defaultPackage = forAllSystems (system:
+        (mkHomeConfig system).activationPackage
+      );
+
+      # Packages per system
+      packages = forAllSystems (system: {
+        "home-manager-configuration" = (mkHomeConfig system).activationPackage;
+      });
+
+      # Legacy packages for compatibility with home-manager's lookup
+      legacyPackages = forAllSystems (system: {
+        homeConfigurations = {
+          "dave" = (mkHomeConfig system);
+        };
+      });
     };
 }
