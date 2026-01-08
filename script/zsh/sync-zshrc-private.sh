@@ -76,19 +76,29 @@ if [ -n "$EXISTING_NOTE" ]; then
     # Update existing note
     NOTE_ID=$(echo "$EXISTING_NOTE" | jq -r '.id')
     echo "Updating $NOTE_NAME in Bitwarden..."
-    # Create JSON for update
-    UPDATE_JSON=$(echo "$EXISTING_NOTE" | jq --arg content "$ZSHRC_CONTENT" '.notes = $content')
+    # Create JSON for update - preserve all fields, only update notes
+    UPDATE_JSON=$(echo "$EXISTING_NOTE" | jq --arg content "$ZSHRC_CONTENT" '
+        .notes = $content |
+        .secureNote = (.secureNote // {type: 0})
+    ')
     echo "$UPDATE_JSON" | bw encode | bw edit item "$NOTE_ID" --session "$BW_SESSION_RAW"
     echo "✓ Updated $NOTE_NAME in Bitwarden"
 else
     # Create new note
     echo "Creating $NOTE_NAME in Bitwarden..."
-    # Create JSON for new item
+    # Create JSON for new item - Bitwarden expects a specific structure
     NEW_ITEM_JSON=$(jq -n \
         --arg type "2" \
         --arg name "$NOTE_NAME" \
         --arg content "$ZSHRC_CONTENT" \
-        '{type: $type, name: $name, notes: $content}')
+        '{
+            type: $type,
+            name: $name,
+            notes: $content,
+            secureNote: {
+                type: 0
+            }
+        }')
     echo "$NEW_ITEM_JSON" | bw encode | bw create item --session "$BW_SESSION_RAW"
     echo "✓ Created $NOTE_NAME in Bitwarden"
 fi

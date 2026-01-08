@@ -79,3 +79,7 @@ add-zsh-hook precmd _zshrc_private_setup_prompt_hook
 
 # Also run the update once to set initial prompt
 _zshrc_private_update_prompt
+
+# Remove any debug function calls that might interfere
+# (The debug function is now silent)
+:

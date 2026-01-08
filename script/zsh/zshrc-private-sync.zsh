@@ -44,9 +44,9 @@ _zshrc_private_prompt_indicator() {
 
 # Debug function to check if plugin is loaded
 _zshrc_private_debug() {
-    echo "DEBUG: zshrc-private-sync plugin loaded"
-    echo "DEBUG: _zshrc_private_prompt_indicator function exists: $(command -v _zshrc_private_prompt_indicator)"
-    echo "DEBUG: Current sync status: $(_zshrc_private_check_sync && echo synced || echo not synced)"
+    # This function is kept for compatibility but doesn't output anything
+    # to avoid interfering with command output
+    :
 }
 
 # Alias for syncing
