@@ -40,59 +40,54 @@ add-zsh-hook -Uz chpwd() {
 # Add sync indicator to prompt without breaking oh-my-zsh theme
 autoload -Uz add-zsh-hook
 
-# This function will be called before each prompt display
+# Function to update prompt with sync indicator
 _zshrc_private_update_prompt() {
-    # Check if the indicator function exists
+    # Check if indicator function exists
     if command -v _zshrc_private_prompt_indicator >/dev/null 2>&1; then
         # Get the indicator
         local indicator="$(_zshrc_private_prompt_indicator)"
         
-        # Debug: print indicator content
-        echo "DEBUG: indicator='$indicator'" >&2
-        
-        # If we haven't saved the original prompt yet, save it
-        if [[ -z "$_ZSH_ORIGINAL_PROMPT" ]]; then
-            _ZSH_ORIGINAL_PROMPT="$PROMPT"
+        # Save the original prompt from oh-my-zsh if not already saved
+        if [[ -z "$_ZSH_ORIGINAL_PROMPT_SET" ]]; then
+            # Store the current prompt as set by oh-my-zsh
+            typeset -g _ZSH_ORIGINAL_PROMPT="$PROMPT"
+            typeset -g _ZSH_ORIGINAL_PROMPT_SET=1
             # Debug: print original prompt
-            echo "DEBUG: Saved original prompt: $_ZSH_ORIGINAL_PROMPT" >&2
+            echo "DEBUG: Original prompt saved: $_ZSH_ORIGINAL_PROMPT" >&2
         fi
         
-        # Always start from the original prompt
+        # Start with the original prompt
         local new_prompt="$_ZSH_ORIGINAL_PROMPT"
         
         # If there's an indicator, prepend it
         if [[ -n "$indicator" ]]; then
-            # Add the indicator directly to the prompt
-            # The indicator already contains proper escape sequences
             new_prompt="${indicator} ${new_prompt}"
-            # Debug: print new prompt
-            echo "DEBUG: New prompt with indicator: $new_prompt" >&2
+            # Debug: print indicator
+            echo "DEBUG: Adding indicator: $indicator" >&2
         fi
         
         # Update the prompt
         PROMPT="$new_prompt"
     else
-        # For debugging: print to stderr
         echo "DEBUG: _zshrc_private_prompt_indicator not found" >&2
-        :
     fi
 }
 
-# Add the hook to run before each prompt
-add-zsh-hook precmd _zshrc_private_update_prompt
-
-# Run a debug check on startup
-_zshrc_private_startup_debug() {
-    if command -v _zshrc_private_debug >/dev/null 2>&1; then
-        _zshrc_private_debug >&2
+# Set up the prompt hook
+# We need to ensure this runs after oh-my-zsh sets up the prompt
+# We'll use a small delay by checking if oh-my-zsh is loaded
+_zshrc_private_setup_prompt_hook() {
+    # Check if oh-my-zsh is loaded by looking for ZSH variable
+    if [[ -n "$ZSH" ]]; then
+        # Add the precmd hook
+        add-zsh-hook precmd _zshrc_private_update_prompt
+        # Remove this setup function from precmd
+        add-zsh-hook -d precmd _zshrc_private_setup_prompt_hook
     fi
 }
-# Run debug once
-_zshrc_private_startup_debug
 
-# Also, let's add a simple test to see the prompt
-_zshrc_private_test_prompt() {
-    echo "Current PROMPT: $PROMPT"
-}
-# Uncomment to test
-# _zshrc_private_test_prompt
+# Add the setup function to precmd to run until oh-my-zsh is ready
+add-zsh-hook precmd _zshrc_private_setup_prompt_hook
+
+# Also run the update once to set initial prompt
+_zshrc_private_update_prompt
