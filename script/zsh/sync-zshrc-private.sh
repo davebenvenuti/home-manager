@@ -51,6 +51,14 @@ if [ -z "$BW_SESSION_RAW" ]; then
     exit 1
 fi
 
+# Test the session by trying to list folders (a simple operation)
+if ! bw list folders --session "$BW_SESSION_RAW" >/dev/null 2>&1; then
+    echo "Error: Bitwarden session appears to be invalid or expired."
+    echo "Please unlock Bitwarden again and set a fresh BW_SESSION:"
+    echo "  export BW_SESSION=\"\$(bw unlock --raw)\""
+    exit 1
+fi
+
 # Calculate current hash
 CURRENT_HASH=$(sha256sum "$ZSHRC_PRIVATE" | cut -d' ' -f1)
 echo "Current file hash: ${CURRENT_HASH:0:8}..."
@@ -76,29 +84,49 @@ if [ -n "$EXISTING_NOTE" ]; then
     # Update existing note
     NOTE_ID=$(echo "$EXISTING_NOTE" | jq -r '.id')
     echo "Updating $NOTE_NAME in Bitwarden..."
-    # Create JSON for update - preserve all fields, only update notes
+    # Update the notes field while preserving all other fields
     UPDATE_JSON=$(echo "$EXISTING_NOTE" | jq --arg content "$ZSHRC_CONTENT" '
         .notes = $content |
-        .secureNote = (.secureNote // {type: 0})
+        if .secureNote == null then .secureNote = {type: 0} else . end
     ')
     echo "$UPDATE_JSON" | bw encode | bw edit item "$NOTE_ID" --session "$BW_SESSION_RAW"
     echo "✓ Updated $NOTE_NAME in Bitwarden"
 else
     # Create new note
     echo "Creating $NOTE_NAME in Bitwarden..."
-    # Create JSON for new item - Bitwarden expects a specific structure
-    NEW_ITEM_JSON=$(jq -n \
-        --arg type "2" \
-        --arg name "$NOTE_NAME" \
-        --arg content "$ZSHRC_CONTENT" \
-        '{
-            type: $type,
-            name: $name,
-            notes: $content,
-            secureNote: {
-                type: 0
-            }
-        }')
+    # Get template for secure note item
+    TEMPLATE_JSON=$(bw get template item --session "$BW_SESSION_RAW" 2>/dev/null || echo '')
+    if [ -n "$TEMPLATE_JSON" ]; then
+        # Use template and modify it
+        NEW_ITEM_JSON=$(echo "$TEMPLATE_JSON" | jq \
+            --arg name "$NOTE_NAME" \
+            --arg content "$ZSHRC_CONTENT" \
+            '.type = 2 |
+             .name = $name |
+             .notes = $content |
+             .secureNote.type = 0')
+    else
+        # Fallback to manual JSON if template fails
+        NEW_ITEM_JSON=$(jq -n \
+            --arg name "$NOTE_NAME" \
+            --arg content "$ZSHRC_CONTENT" \
+            '{
+                type: 2,
+                name: $name,
+                notes: $content,
+                secureNote: {
+                    type: 0
+                },
+                favorite: false,
+                fields: [],
+                login: null,
+                card: null,
+                identity: null
+            }')
+    fi
+    # Debug: show the JSON being sent
+    echo "DEBUG: JSON being sent: $NEW_ITEM_JSON" >&2
+    
     echo "$NEW_ITEM_JSON" | bw encode | bw create item --session "$BW_SESSION_RAW"
     echo "✓ Created $NOTE_NAME in Bitwarden"
 fi
