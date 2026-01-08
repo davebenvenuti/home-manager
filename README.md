@@ -49,3 +49,39 @@ For more information see the [home-manager flakes standalone docs](https://nix-c
 `man home-configuration.nix` explains Home Manager configuration specification
 
 [https://github.com/sadjow/home-manager/](https://github.com/sadjow/home-manager/) was helpful
+
+## Zshrc.private Sync System
+
+This configuration includes a system to securely sync your `~/.zshrc.private` file to Bitwarden. This file is meant for sensitive environment variables, API keys, and other secrets that shouldn't be committed to version control.
+
+### How it works:
+
+1. **Prompt Indicator**: A yellow asterisk (`*`) appears in your zsh prompt when `~/.zshrc.private` has been modified but not yet synced to Bitwarden.
+
+2. **Sync Command**: Run `sync-zshrc-private` to upload the current version to Bitwarden as a secure note. The note is named `.zshrc.private (HOSTNAME)`.
+
+3. **Status Check**: Use `zshrc-private-status` to check if your file is synced without syncing.
+
+4. **Manual Refresh**: If needed, run `refresh-zsh-prompt` to immediately update the prompt indicator.
+
+### Setup:
+
+1. Ensure Bitwarden CLI is installed and configured (`bw` command available)
+2. Run `bw login` to log into your Bitwarden account
+3. Run `bw unlock` to unlock your vault and get a session key
+4. Set the session key as an environment variable:
+   ```bash
+   export BW_SESSION="$(bw unlock --raw)"
+   ```
+   (Consider adding this to your shell configuration)
+
+### Files:
+
+- `~/.zshrc.private`: Your private shell configuration (not tracked in git)
+- `~/.zshrc.private.lastsync`: Stores the hash of the last synced version
+- `~/.local/bin/sync-zshrc-private.sh`: Sync script
+- `~/.local/share/zsh/zshrc-private-sync.zsh`: Zsh plugin for prompt integration
+
+### How the prompt indicator updates:
+
+The indicator is part of the PROMPT string itself (`$(_zshrc_private_prompt_indicator)`), so it's evaluated each time the prompt is displayed. This means it updates automatically without needing to reload your shell or run special commands.

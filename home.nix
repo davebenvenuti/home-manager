@@ -36,6 +36,10 @@ in
     pkgs.emacs-nox
 
     pkgs.aider-chat
+    # Bitwarden CLI for password management
+    pkgs.bitwarden-cli
+    # jq for JSON processing in activation scripts
+    pkgs.jq
 
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
@@ -61,9 +65,13 @@ in
     let
       baseFiles = {
         # Files that should get installed in all platforms
-
-        # Content can be set directly, too
-        # ".lol".text = "wat"
+        ".local/bin/sync-zshrc-private.sh" = {
+          source = ./script/zsh/sync-zshrc-private.sh;
+          executable = true;
+        };
+        ".local/share/zsh/zshrc-private-sync.zsh" = {
+          source = ./script/zsh/zshrc-private-sync.zsh;
+        };
       };
       macFiles = lib.optionalAttrs isMacOS {
         "Library/Application Support/com.mitchellh.ghostty/config".source = ./dotfiles/ghostty/config;
