@@ -1,3 +1,8 @@
+# Load .zshrc.private sync plugin
+if [ -f ~/.local/share/zsh/zshrc-private-sync.zsh ]; then
+  source ~/.local/share/zsh/zshrc-private-sync.zsh
+fi
+
 if [[ -e ~/.aliases ]]; then
   source ~/.aliases
 fi
@@ -25,3 +30,32 @@ add-zsh-hook -Uz chpwd() {
     tmux set-option -w allow-rename on
   fi
 }
+
+# Add sync indicator to prompt
+# We need to modify the existing prompt to include the indicator
+# Since you're using oh-my-zsh with robbyrussell theme, we need to hook into it
+_zshrc_private_custom_prompt() {
+  # Get the original prompt
+  local original_prompt="$(robbyrussell_prompt_info)$(git_prompt_info) %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_status) $ "
+  
+  # Add our indicator at the beginning
+  if command -v _zshrc_private_prompt_indicator >/dev/null 2>&1; then
+    local indicator="$(_zshrc_private_prompt_indicator) "
+    echo "$indicator$original_prompt"
+  else
+    echo "$original_prompt"
+  fi
+}
+
+# Only override if we have the indicator function
+if command -v _zshrc_private_prompt_indicator >/dev/null 2>&1; then
+  # Check if we're using oh-my-zsh
+  if [[ -n "$ZSH" ]]; then
+    # For oh-my-zsh, we need to override the PROMPT variable
+    PROMPT='$(_zshrc_private_prompt_indicator) $(robbyrussell_prompt_info)$(git_prompt_info) %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_status) $ '
+    RPROMPT=''
+  else
+    # Fallback for non-oh-my-zsh
+    PROMPT='$(_zshrc_private_prompt_indicator) %n@%m:%~%# '
+  fi
+fi
