@@ -55,12 +55,15 @@ in
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
-  home.file = 
+  home.file =
     let
       baseFiles = {
         ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
         # ".tmux.conf".source = ./dotfiles/tmux.conf;  # Now managed via programs.tmux
         # ".zshrc".source = ./dotfiles/zshrc;  # Now managed via programs.zsh
+
+        # Content can be set directly, too
+        # ".lol".text = "wat"
       };
       macFiles = lib.optionalAttrs isMacOS {
         "Library/Application Support/com.mitchellh.ghostty/config".source = ./dotfiles/ghostty/config;
