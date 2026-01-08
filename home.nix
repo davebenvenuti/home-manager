@@ -36,6 +36,8 @@ in
     pkgs.emacs-nox
 
     pkgs.aider-chat
+    # Bitwarden CLI for password management
+    pkgs.bitwarden-cli
 
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
