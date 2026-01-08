@@ -35,6 +35,8 @@ in
     # Emacs without X11 GUI
     pkgs.emacs-nox
 
+    pkgs.aider-chat
+
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
@@ -58,7 +60,7 @@ in
   home.file =
     let
       baseFiles = {
-        ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
+        # Files that should get installed in all platforms
 
         # Content can be set directly, too
         # ".lol".text = "wat"
@@ -68,6 +70,8 @@ in
       };
     in
     baseFiles // macFiles;
+
+  home.sessionPath = [ "$HOME/.local/bin" ];
 
   # Home Manager can also manage your environment variables through
   # 'home.sessionVariables'. These will be explicitly sourced when using a
@@ -95,6 +99,7 @@ in
     ./programs/git.nix
     ./programs/tmux.nix
     ./programs/zsh.nix
+    ./programs/aider-chat.nix
   ];
 
   # Activation scripts run after configuration is applied
