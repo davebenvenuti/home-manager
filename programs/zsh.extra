@@ -1,6 +1,12 @@
 # Load .zshrc.private sync plugin
 if [ -f ~/.local/share/zsh/zshrc-private-sync.zsh ]; then
   source ~/.local/share/zsh/zshrc-private-sync.zsh
+  # Debug: print a message to confirm loading
+  # echo "DEBUG: Loaded zshrc-private-sync plugin"
+else
+  # Debug: print a warning if file not found
+  # echo "DEBUG: zshrc-private-sync.zsh not found at ~/.local/share/zsh/zshrc-private-sync.zsh"
+  :
 fi
 
 if [[ -e ~/.aliases ]]; then
@@ -56,8 +62,21 @@ _zshrc_private_update_prompt() {
         
         # Update the prompt
         PROMPT="$new_prompt"
+    else
+        # For debugging: print to stderr
+        # echo "DEBUG: _zshrc_private_prompt_indicator not found" >&2
+        :
     fi
 }
 
 # Add the hook to run before each prompt
 add-zsh-hook precmd _zshrc_private_update_prompt
+
+# Run a debug check on startup
+_zshrc_private_startup_debug() {
+    if command -v _zshrc_private_debug >/dev/null 2>&1; then
+        _zshrc_private_debug >&2
+    fi
+}
+# Run debug once
+_zshrc_private_startup_debug
