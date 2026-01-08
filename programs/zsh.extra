@@ -47,9 +47,14 @@ _zshrc_private_update_prompt() {
         # Get the indicator
         local indicator="$(_zshrc_private_prompt_indicator)"
         
+        # Debug: print indicator content
+        echo "DEBUG: indicator='$indicator'" >&2
+        
         # If we haven't saved the original prompt yet, save it
         if [[ -z "$_ZSH_ORIGINAL_PROMPT" ]]; then
             _ZSH_ORIGINAL_PROMPT="$PROMPT"
+            # Debug: print original prompt
+            echo "DEBUG: Saved original prompt: $_ZSH_ORIGINAL_PROMPT" >&2
         fi
         
         # Always start from the original prompt
@@ -57,14 +62,18 @@ _zshrc_private_update_prompt() {
         
         # If there's an indicator, prepend it
         if [[ -n "$indicator" ]]; then
+            # Add the indicator directly to the prompt
+            # The indicator already contains proper escape sequences
             new_prompt="${indicator} ${new_prompt}"
+            # Debug: print new prompt
+            echo "DEBUG: New prompt with indicator: $new_prompt" >&2
         fi
         
         # Update the prompt
         PROMPT="$new_prompt"
     else
         # For debugging: print to stderr
-        # echo "DEBUG: _zshrc_private_prompt_indicator not found" >&2
+        echo "DEBUG: _zshrc_private_prompt_indicator not found" >&2
         :
     fi
 }
@@ -80,3 +89,10 @@ _zshrc_private_startup_debug() {
 }
 # Run debug once
 _zshrc_private_startup_debug
+
+# Also, let's add a simple test to see the prompt
+_zshrc_private_test_prompt() {
+    echo "Current PROMPT: $PROMPT"
+}
+# Uncomment to test
+# _zshrc_private_test_prompt

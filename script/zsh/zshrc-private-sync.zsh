@@ -37,7 +37,7 @@ _zshrc_private_prompt_indicator() {
         :
     else
         # Not synced - show warning
-        echo -n "%F{yellow}⚠%f"
+        print -n "%F{yellow}⚠%f"
     fi
 }
 
