@@ -28,7 +28,7 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           isDarwin = system == "aarch64-darwin";
-          extraSpecialArgs = if isDarwin then { inherit darwin; } else { };
+          extraSpecialArgs = { inherit darwin; inherit system; };
         in
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;

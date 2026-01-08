@@ -1,7 +1,7 @@
-{ config, pkgs, lib, darwin ? null, ... }:
+{ config, pkgs, lib, darwin, system, ... }:
 
 let
-  isMacOS = darwin != null;
+  isMacOS = builtins.match ".*darwin.*" system != null;
 in
 
 {
