@@ -1,7 +1,7 @@
 { config, pkgs, lib, darwin ? null, ... }:
 
 let
-  isMacOS = pkgs.stdenv.hostPlatform.isDarwin;
+  isMacOS = darwin != null;
 in
 
 {
@@ -59,8 +59,6 @@ in
     let
       baseFiles = {
         ".aider.conf.yml".source = ./dotfiles/aider.conf.yml;
-        # ".tmux.conf".source = ./dotfiles/tmux.conf;  # Now managed via programs.tmux
-        # ".zshrc".source = ./dotfiles/zshrc;  # Now managed via programs.zsh
 
         # Content can be set directly, too
         # ".lol".text = "wat"
@@ -94,9 +92,9 @@ in
 
   # Import program configurations from separate modules
   imports = [
-    ./home/git.nix
-    ./home/tmux.nix
-    ./home/zsh.nix
+    ./programs/git.nix
+    ./programs/tmux.nix
+    ./programs/zsh.nix
   ];
 
   # Activation scripts run after configuration is applied
