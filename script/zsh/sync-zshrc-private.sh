@@ -24,16 +24,30 @@ if [ "$LOGGED_IN" != "true" ]; then
     echo "Bitwarden is not logged in or unlocked."
     echo "Please unlock Bitwarden first by running:"
     echo "  bw unlock"
+    echo "Then set the BW_SESSION environment variable:"
+    echo "  export BW_SESSION=\"\$(bw unlock --raw)\""
+    echo "Or add it to your shell configuration."
     echo "Then run this script again."
     exit 1
 fi
 
-# Get session key from existing session
+# Get session key - prefer BW_SESSION environment variable, fall back to bw session --raw
 echo "Getting Bitwarden session..."
-BW_SESSION_RAW=$(bw session --raw 2>/dev/null || echo "")
+if [ -n "$BW_SESSION" ]; then
+    BW_SESSION_RAW="$BW_SESSION"
+    echo "Using BW_SESSION environment variable"
+elif command -v bw >/dev/null 2>&1; then
+    BW_SESSION_RAW=$(bw session --raw 2>/dev/null || echo "")
+else
+    BW_SESSION_RAW=""
+fi
+
 if [ -z "$BW_SESSION_RAW" ]; then
     echo "Error: Could not obtain Bitwarden session."
-    echo "Please ensure Bitwarden is unlocked and try again."
+    echo "Please ensure Bitwarden is unlocked and try one of these:"
+    echo "1. Set BW_SESSION environment variable:"
+    echo "   export BW_SESSION=\"\$(bw unlock --raw)\""
+    echo "2. Or ensure 'bw session --raw' returns a session token"
     exit 1
 fi
 

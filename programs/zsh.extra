@@ -1,12 +1,6 @@
 # Load .zshrc.private sync plugin
 if [ -f ~/.local/share/zsh/zshrc-private-sync.zsh ]; then
   source ~/.local/share/zsh/zshrc-private-sync.zsh
-  # Debug: print a message to confirm loading
-  # echo "DEBUG: Loaded zshrc-private-sync plugin"
-else
-  # Debug: print a warning if file not found
-  # echo "DEBUG: zshrc-private-sync.zsh not found at ~/.local/share/zsh/zshrc-private-sync.zsh"
-  :
 fi
 
 if [[ -e ~/.aliases ]]; then
@@ -52,8 +46,6 @@ _zshrc_private_update_prompt() {
             # Store the current prompt as set by oh-my-zsh
             typeset -g _ZSH_ORIGINAL_PROMPT="$PROMPT"
             typeset -g _ZSH_ORIGINAL_PROMPT_SET=1
-            # Debug: print original prompt
-            echo "DEBUG: Original prompt saved: $_ZSH_ORIGINAL_PROMPT" >&2
         fi
         
         # Start with the original prompt
@@ -62,14 +54,10 @@ _zshrc_private_update_prompt() {
         # If there's an indicator, prepend it
         if [[ -n "$indicator" ]]; then
             new_prompt="${indicator} ${new_prompt}"
-            # Debug: print indicator
-            echo "DEBUG: Adding indicator: $indicator" >&2
         fi
         
         # Update the prompt
         PROMPT="$new_prompt"
-    else
-        echo "DEBUG: _zshrc_private_prompt_indicator not found" >&2
     fi
 }
 
