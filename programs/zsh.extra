@@ -32,30 +32,39 @@ add-zsh-hook -Uz chpwd() {
 }
 
 # Add sync indicator to prompt
-# We need to modify the existing prompt to include the indicator
 # Since you're using oh-my-zsh with robbyrussell theme, we need to hook into it
-_zshrc_private_custom_prompt() {
-  # Get the original prompt
-  local original_prompt="$(robbyrussell_prompt_info)$(git_prompt_info) %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_status) $ "
-  
-  # Add our indicator at the beginning
-  if command -v _zshrc_private_prompt_indicator >/dev/null 2>&1; then
-    local indicator="$(_zshrc_private_prompt_indicator) "
-    echo "$indicator$original_prompt"
-  else
-    echo "$original_prompt"
-  fi
+# We'll create a custom prompt function that includes our indicator
+autoload -Uz add-zsh-hook
+
+_zshrc_private_set_prompt() {
+    # Check if indicator function exists
+    if command -v _zshrc_private_prompt_indicator >/dev/null 2>&1; then
+        local indicator="$(_zshrc_private_prompt_indicator)"
+        if [[ -n "$indicator" ]]; then
+            # Add a space after the indicator if it's not empty
+            indicator="$indicator "
+        fi
+        
+        # For oh-my-zsh themes, we need to reconstruct the prompt
+        if [[ -n "$ZSH" ]]; then
+            # Get the robbyrussell theme components
+            local ret_status="%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ )"
+            local current_dir="%{$fg[cyan]%}%c%{$reset_color%}"
+            local git_info="$(git_prompt_info)"
+            local git_status="$(git_prompt_status)"
+            
+            # Build the prompt
+            PROMPT="${indicator}${ret_status}${current_dir} ${git_info} ${git_status}%{$reset_color%} "
+            RPROMPT=''
+        else
+            # Fallback for non-oh-my-zsh
+            PROMPT="${indicator}%n@%m:%~%# "
+        fi
+    fi
 }
 
-# Only override if we have the indicator function
-if command -v _zshrc_private_prompt_indicator >/dev/null 2>&1; then
-  # Check if we're using oh-my-zsh
-  if [[ -n "$ZSH" ]]; then
-    # For oh-my-zsh, we need to override the PROMPT variable
-    PROMPT='$(_zshrc_private_prompt_indicator) $(robbyrussell_prompt_info)$(git_prompt_info) %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_status) $ '
-    RPROMPT=''
-  else
-    # Fallback for non-oh-my-zsh
-    PROMPT='$(_zshrc_private_prompt_indicator) %n@%m:%~%# '
-  fi
-fi
+# Set the prompt initially
+_zshrc_private_set_prompt
+
+# Update prompt when the plugin loads or when needed
+add-zsh-hook precmd _zshrc_private_set_prompt
