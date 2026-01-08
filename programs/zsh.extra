@@ -34,52 +34,30 @@ add-zsh-hook -Uz chpwd() {
 # Add sync indicator to prompt without breaking oh-my-zsh theme
 autoload -Uz add-zsh-hook
 
-_zshrc_private_set_prompt() {
-    # Check if indicator function exists
+# This function will be called before each prompt display
+_zshrc_private_update_prompt() {
+    # Check if the indicator function exists
     if command -v _zshrc_private_prompt_indicator >/dev/null 2>&1; then
+        # Get the indicator
         local indicator="$(_zshrc_private_prompt_indicator)"
+        
+        # If we haven't saved the original prompt yet, save it
+        if [[ -z "$_ZSH_ORIGINAL_PROMPT" ]]; then
+            _ZSH_ORIGINAL_PROMPT="$PROMPT"
+        fi
+        
+        # Always start from the original prompt
+        local new_prompt="$_ZSH_ORIGINAL_PROMPT"
+        
+        # If there's an indicator, prepend it
         if [[ -n "$indicator" ]]; then
-            # Add a space after the indicator
-            indicator="$indicator "
+            new_prompt="${indicator} ${new_prompt}"
         fi
         
-        # Save the original prompt if not already saved
-        if [[ -z "$_ORIGINAL_PROMPT" ]]; then
-            _ORIGINAL_PROMPT="$PROMPT"
-        fi
-        
-        # Prepend the indicator to the original prompt
-        # This preserves all oh-my-zsh features including git info
-        PROMPT="${indicator}${_ORIGINAL_PROMPT}"
+        # Update the prompt
+        PROMPT="$new_prompt"
     fi
 }
 
-# Set up the prompt modification
-# We need to wait until oh-my-zsh has set up the prompt first
-# So we'll use a precmd hook that runs after oh-my-zsh
-_zshrc_private_setup_prompt() {
-    # Only set up once
-    if [[ -n "$_ZSH_PROMPT_SETUP" ]]; then
-        return
-    fi
-    
-    # Wait for oh-my-zsh to initialize
-    if [[ -n "$ZSH" ]]; then
-        # Save the original prompt
-        _ORIGINAL_PROMPT="$PROMPT"
-        _ZSH_PROMPT_SETUP=1
-        
-        # Set up our prompt modification
-        add-zsh-hook precmd _zshrc_private_set_prompt
-    fi
-}
-
-# Add a hook to set up after oh-my-zsh initializes
-# We'll use a precmd hook that runs until setup is complete
-_zshrc_private_prompt_init() {
-    _zshrc_private_setup_prompt
-}
-
-# Add the initialization hook
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd _zshrc_private_prompt_init
+# Add the hook to run before each prompt
+add-zsh-hook precmd _zshrc_private_update_prompt
