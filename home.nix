@@ -113,7 +113,17 @@ in
   # Activation scripts run after configuration is applied
   # TODO: Switch to fetchFromGitHub for reproducible setup of emacs configuration
   home.activation = {
-    cloneEmacsConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    # Remove .profile if it exists
+    removeProfile = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      PROFILE_PATH="$HOME/.profile"
+      if [ -e "$PROFILE_PATH" ]; then
+        echo "Removing $PROFILE_PATH..."
+        rm -f "$PROFILE_PATH"
+      else
+        echo "$PROFILE_PATH does not exist (nothing to remove)"
+      fi
+    '';
+    cloneEmacsConfig = lib.hm.dag.entryAfter ["removeProfile"] ''
       EMACS_DIR="$HOME/.emacs.d"
       if [ ! -d "$EMACS_DIR" ]; then
         echo "Cloning emacs configuration repository..."
