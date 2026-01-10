@@ -67,11 +67,11 @@ in
       baseFiles = {
         # Files that should get installed in all platforms
         ".local/bin/sync-zshrc-private.sh" = {
-          source = ./script/zsh/sync-zshrc-private.sh;
+          source = ./programs/zsh/sync-zshrc-private.sh;
           executable = true;
         };
         ".local/share/zsh/zshrc-private-sync.zsh" = {
-          source = ./script/zsh/zshrc-private-sync.zsh;
+          source = ./programs/zsh/zshrc-private-sync.zsh;
         };
       };
       macFiles = lib.optionalAttrs isMacOS {
