@@ -17,9 +17,11 @@ Use the [multiuser installer](https://nixos.org/download/#nix-install-linux)
 ## Setup this home-manager config
 
 ```bash
-git clone git@github.com:davebenvenuti/home-manager.git ~/.config/home-manager
+nix run home-manager/master -- --init switch
 
-nix run home-manager/master -- --switch
+rm -rf ~/.config/home-manager
+
+git clone git@github.com:davebenvenuti/home-manager.git ~/.config/home-manager
 ```
 
 ## Apply
