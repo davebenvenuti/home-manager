@@ -26,7 +26,13 @@ git clone git@github.com:davebenvenuti/home-manager.git ~/.config/home-manager
 
 ## Apply
 
+Assuming the hostnames are set properly (`air` or `shithouse`),
+
 `home-manager switch`
+
+If they're not set, you can switch to individual configurations by doing
+
+`home-manager switch --flake .#dave@air`
 
 If you get an error about clobber files, run
 
