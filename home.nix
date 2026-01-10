@@ -23,23 +23,23 @@ in
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = [
+  home.packages = with pkgs; [
     # Git will be installed via programs.git, but we can list it here for clarity
-    pkgs.git
+    git
     # Tmux will be installed via programs.tmux, but we can list it here for clarity
-    pkgs.tmux
+    tmux
     # Zsh will be installed via programs.zsh, but we can list it here for clarity
-    pkgs.zsh
+    zsh
     # Tig - text-mode interface for Git
-    pkgs.tig
+    tig
     # Emacs without X11 GUI
-    pkgs.emacs-nox
+    emacs-nox
 
-    pkgs.aider-chat
+    aider-chat
     # Bitwarden CLI for password management
-    pkgs.bitwarden-cli
+    bitwarden-cli
     # jq for JSON processing in activation scripts
-    pkgs.jq
+    jq
 
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
