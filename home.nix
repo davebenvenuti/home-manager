@@ -62,23 +62,9 @@ in
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
-  home.file =
-    let
-      baseFiles = {
-        # Files that should get installed in all platforms
-        ".local/bin/sync-zshrc-private.sh" = {
-          source = ./programs/zsh/sync-zshrc-private.sh;
-          executable = true;
-        };
-        ".local/share/zsh/zshrc-private-sync.zsh" = {
-          source = ./programs/zsh/zshrc-private-sync.zsh;
-        };
-      };
-      macFiles = lib.optionalAttrs isMacOS {
-        "Library/Application Support/com.mitchellh.ghostty/config".source = ./dotfiles/ghostty/config;
-      };
-    in
-    baseFiles // macFiles;
+  home.file = lib.optionalAttrs isMacOS {
+    "Library/Application Support/com.mitchellh.ghostty/config".source = ./dotfiles/ghostty/config;
+  };
 
   home.sessionPath = [ "$HOME/.local/bin" ];
 
