@@ -22,7 +22,7 @@
       # Supported systems
       supportedSystems = [ "x86_64-linux" "aarch64-darwin" ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-      
+
       # Function to create a home configuration for a given system
       mkHomeConfig = system:
         let
@@ -39,27 +39,8 @@
     {
       # Home configurations
       homeConfigurations = {
-        "dave@linux" = mkHomeConfig "x86_64-linux";
-        "dave@darwin" = mkHomeConfig "aarch64-darwin";
-        # dave is an attribute set keyed by system
-        "dave" = forAllSystems (system: mkHomeConfig system);
+        "dave@shithouse" = mkHomeConfig "x86_64-linux";
+        "dave@air" = mkHomeConfig "aarch64-darwin";
       };
-
-      # Default package for `nix run`
-      defaultPackage = forAllSystems (system:
-        (mkHomeConfig system).activationPackage
-      );
-
-      # Packages per system
-      packages = forAllSystems (system: {
-        "home-manager-configuration" = (mkHomeConfig system).activationPackage;
-      });
-
-      # Legacy packages for compatibility with home-manager's lookup
-      legacyPackages = forAllSystems (system: {
-        homeConfigurations = {
-          "dave" = (mkHomeConfig system);
-        };
-      });
     };
 }
