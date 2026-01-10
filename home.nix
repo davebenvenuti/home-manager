@@ -41,6 +41,7 @@ in
     # jq for JSON processing in activation scripts
     jq
 
+    starship
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
@@ -108,6 +109,7 @@ in
     ./programs/tmux.nix
     ./programs/zsh.nix
     ./programs/aider-chat.nix
+    ./programs/starship.nix
   ];
 
   # Activation scripts run after configuration is applied
