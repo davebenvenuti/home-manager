@@ -25,8 +25,12 @@
         style = "bold yellow";
       };
 
+      os = {
+        disabled = false;
+      };
+
       # https://calvinpyong.com/blog/starship-robbyrussell/
-      format = " $custom$character$directory$git_branch$git_status";
+      format = "$custom$os$character$directory$git_branch$git_status";
 
       # Further modified in features/zshrc-private-sync.nix
     };
