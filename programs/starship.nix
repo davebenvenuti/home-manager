@@ -30,7 +30,14 @@
       };
 
       # https://calvinpyong.com/blog/starship-robbyrussell/
-      format = "$custom$os$character$directory$git_branch$git_status";
+      format = "$custom$character$directory$git_branch$git_status";
+
+      hostname = {
+        ssh_only = false;
+        format = "[$ssh_symbol$hostname]($style)";
+      };
+
+      right_format = "$os$hostname";
 
       # Further modified in features/zshrc-private-sync.nix
     };
