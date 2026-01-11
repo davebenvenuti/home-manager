@@ -1,16 +1,18 @@
-{ config, pkgs, lib, darwin, system, ... }:
-
-let
-  isMacOS = builtins.match ".*darwin.*" system != null;
-in
+{ config, pkgs, lib, darwin, system, features, homeDirectory, ... }:
 
 {
+  # Validate features
+  assertions = [
+    {
+      assertion = !(features.zshrc-private-sync or false) || (features.bitwarden-cli or false);
+      message = "If features.zshrc-private-sync is true, then features.bitwarden-cli must also be true";
+    }
+  ];
+
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "dave";
-  home.homeDirectory = if isMacOS
-    then "/Users/dave"
-    else "/home/dave";
+  home.homeDirectory = homeDirectory;
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -37,7 +39,7 @@ in
 
     aider-chat
     # Bitwarden CLI for password management
-    bitwarden-cli
+    (if features.bitwarden-cli then bitwarden-cli else null)
     # jq for JSON processing in activation scripts
     jq
 
@@ -62,7 +64,7 @@ in
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
-  home.file = lib.optionalAttrs isMacOS {
+  home.file = lib.optionalAttrs features.ghostty {
     "Library/Application Support/com.mitchellh.ghostty/config".source = ./dotfiles/ghostty/config;
   };
 
@@ -96,6 +98,7 @@ in
     ./programs/zsh.nix
     ./programs/aider-chat.nix
     ./programs/starship.nix
+    ./features/zshrc-private-sync.nix
   ];
 
   # Activation scripts run after configuration is applied

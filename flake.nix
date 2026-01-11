@@ -24,23 +24,38 @@
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
       # Function to create a home configuration for a given system
-      mkHomeConfig = system:
+      mkHomeConfig = system: homeDirectory: features:
         let
           pkgs = nixpkgs.legacyPackages.${system};
           isDarwin = system == "aarch64-darwin";
-          extraSpecialArgs = { inherit darwin; inherit system; };
+          extraSpecialArgs = {
+            inherit darwin;
+            inherit system;
+            inherit homeDirectory;
+            inherit features;
+          };
         in
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
+          inherit extraSpecialArgs;
           modules = [ ./home.nix ];
-          extraSpecialArgs = extraSpecialArgs;
         };
+
+      defaultFeatures = {
+        bitwarden-cli = true;
+        zshrc-private-sync = true;
+        aider = true;
+        ghostty = false;
+      };
     in
     {
       # Home configurations
       homeConfigurations = {
-        "dave@shithouse" = mkHomeConfig "x86_64-linux";
-        "dave@air" = mkHomeConfig "aarch64-darwin";
+        "dave@shithouse" = mkHomeConfig "x86_64-linux" "/home/dave" (defaultFeatures // {
+        });
+        "dave@air" = mkHomeConfig "aarch64-darwin" "/Users/dave" (defaultFeatures // {
+          ghostty = true;
+        });
       };
     };
 }

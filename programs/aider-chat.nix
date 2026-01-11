@@ -1,8 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, features, ... }:
 
 {
   programs.aider-chat = {
-    enable = true;
+    enable = features.aider;
     package = pkgs.aider-chat;
 
     settings = {
