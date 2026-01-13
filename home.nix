@@ -38,8 +38,6 @@
     emacs-nox
 
     aider-chat
-    # Bitwarden CLI for password management
-    (if features.bitwarden-cli then bitwarden-cli else null)
     # jq for JSON processing in activation scripts
     jq
 
@@ -60,7 +58,7 @@
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
-  ];
+  ] ++ lib.optional features.bitwarden-cli pkgs.bitwarden-cli;
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
