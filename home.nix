@@ -28,12 +28,18 @@
   home.packages = with pkgs; [
     # Git will be installed via programs.git, but we can list it here for clarity
     git
+    # Nicer diffs
+    delta
+
     # Tmux will be installed via programs.tmux, but we can list it here for clarity
     tmux
+
     # Zsh will be installed via programs.zsh, but we can list it here for clarity
     zsh
+
     # Tig - text-mode interface for Git
     tig
+
     # Emacs without X11 GUI
     emacs-nox
 
@@ -42,9 +48,6 @@
     jq
 
     starship
-    # # Adds the 'hello' command to your environment. It prints a friendly
-    # # "Hello, world!" when run.
-    # pkgs.hello
 
     # # It is sometimes useful to fine-tune packages, for example, by applying
     # # overrides. You can do that directly here, just don't forget the
