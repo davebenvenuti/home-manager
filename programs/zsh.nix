@@ -11,8 +11,8 @@
 
     # History configuration
     history = {
-      size = 10000;
-      save = 10000;
+      size = 100000;
+      save = 100000;
       path = "${config.home.homeDirectory}/.zsh_history";
       ignoreDups = true;
       share = true;
