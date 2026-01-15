@@ -36,6 +36,8 @@
 
     # Zsh will be installed via programs.zsh, but we can list it here for clarity
     zsh
+    # A modern alternative to ls
+    eza
 
     # Tig - text-mode interface for Git
     tig
