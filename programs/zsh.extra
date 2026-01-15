@@ -14,8 +14,6 @@ if [ -e ~/.zshrc.private ]; then
   . ~/.zshrc.private
 fi
 
-export RCLONE_FAST_LIST=true
-
 if [[ $- =~ i ]] && [[ -z "$TMUX" ]] && [[ -n "$SSH_TTY" ]]; then
   tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 fi

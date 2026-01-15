@@ -92,6 +92,7 @@
   home.sessionVariables = {
     EDITOR = "nano -w";
     GIT_EDITOR = "nano -w";
+    RCLONE_FAST_LIST = "true";
   };
 
   # Import program configurations from separate modules
