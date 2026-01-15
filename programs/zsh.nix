@@ -15,6 +15,7 @@
       save = 100000;
       path = "${config.home.homeDirectory}/.zsh_history";
       ignoreDups = true;
+      ignoreSpace = true;
       share = true;
     };
 
