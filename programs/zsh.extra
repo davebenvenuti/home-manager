@@ -33,21 +33,3 @@ add-zsh-hook -Uz chpwd() {
     tmux set-option -w allow-rename on
   fi
 }
-
-# Function to set up the prompt with sync indicator
-_zshrc_private_setup_prompt() {
-    # Check if indicator function exists
-    if command -v _zshrc_private_prompt_indicator >/dev/null 2>&1; then
-        # Build the robbyrussell prompt
-        # These variables are set by oh-my-zsh
-        local ret_status="%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ )"
-        local current_dir="%{$fg[cyan]%}%c%{$reset_color%}"
-        
-        # Set PROMPT with our indicator function called dynamically
-        # The $() will execute _zshrc_private_prompt_indicator each time prompt is displayed
-        PROMPT='$(_zshrc_private_prompt_indicator)'" ${ret_status}${current_dir} \$(git_prompt_info)%{$reset_color%} "
-    fi
-}
-
-# Set up the prompt after oh-my-zsh has initialized
-_zshrc_private_setup_prompt
