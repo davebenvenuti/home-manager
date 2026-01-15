@@ -1,3 +1,5 @@
+# -*- mode: shell-script -*-
+
 # Load .zshrc.private sync plugin
 if [ -f ~/.local/share/zsh/zshrc-private-sync.zsh ]; then
   source ~/.local/share/zsh/zshrc-private-sync.zsh
