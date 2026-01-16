@@ -20,7 +20,7 @@
     };
 
     # Read the extra configuration from a separate file
-    initContent = lib.mkDefault (builtins.readFile ./zsh.extra);
+    initExtra = lib.mkDefault (builtins.readFile ./zsh.extra);
   };
 
   # Further modified in features/zshrc-private-sync.nix
