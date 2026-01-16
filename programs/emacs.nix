@@ -1,12 +1,6 @@
-{ config, lib, ... }:
+{ lib, ... }:
 
 let
-  # We need two paths to the same directory:
-  # - emacsSourceDir: A Nix path (./emacs) used for builtins.readDir during evaluation.
-  #   This must be a Nix path to satisfy pure evaluation mode in flakes.
-  # - emacsConfigDir: An absolute string path used for mkOutOfStoreSymlink targets.
-  #   This points to the actual checkout so symlinks enable live editing without rebuilding.
-  emacsConfigDir = "${config.home.homeDirectory}/src/github.com/davebenvenuti/home-manager/programs/emacs";
   emacsSourceDir = ./emacs;
 
   # Get directory contents
@@ -20,28 +14,24 @@ let
 
   # Find subdirectories that contain a .keep file
   dirsWithKeep = lib.filterAttrs (name: _:
-    let subDirContents = builtins.readDir "${emacsSourceDir}/${name}";
+    let subDirContents = builtins.readDir (lib.path.append emacsSourceDir name);
     in builtins.hasAttr ".keep" subDirContents
   ) subDirs;
 in
 {
-  # We're not using home-manager's built-in emacs program configuration.
-  # Instead, we manage emacs config files directly via symlinks below.
-  # This gives us more control over the configuration structure and
-  # allows live editing without rebuilding home-manager.
   programs.emacs.enable = false;
 
-  # Symlink elisp files and .keep files to ~/.emacs.d
+  # Install elisp files and .keep files to ~/.emacs.d
   home.file =
-    # Symlink all .el files
+    # Install all .el files
     (lib.mapAttrs' (name: _: {
       name = ".emacs.d/${name}";
-      value.source = config.lib.file.mkOutOfStoreSymlink "${emacsConfigDir}/${name}";
+      value.source = lib.path.append emacsSourceDir name;
     }) elispFiles)
     //
-    # Symlink .keep files in subdirectories
+    # Install .keep files in subdirectories
     (lib.mapAttrs' (dir: _: {
       name = ".emacs.d/${dir}/.keep";
-      value.source = config.lib.file.mkOutOfStoreSymlink "${emacsConfigDir}/${dir}/.keep";
+      value.source = lib.path.append emacsSourceDir "${dir}/.keep";
     }) dirsWithKeep);
 }
