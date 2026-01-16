@@ -38,6 +38,8 @@
     zsh
     # A modern alternative to ls
     eza
+    # Better cat/less
+    bat
 
     # Tig - text-mode interface for Git
     tig
@@ -101,6 +103,7 @@
     ./programs/tmux.nix
     ./programs/zsh.nix
     ./programs/eza.nix
+    ./programs/bat.nix
     ./programs/aider-chat.nix
     ./programs/starship.nix
     ./programs/emacs.nix
