@@ -103,11 +103,11 @@
     ./programs/eza.nix
     ./programs/aider-chat.nix
     ./programs/starship.nix
+    ./programs/emacs.nix
     ./features/zshrc-private-sync.nix
   ];
 
   # Activation scripts run after configuration is applied
-  # TODO: Switch to fetchFromGitHub for reproducible setup of emacs configuration
   home.activation = {
     # Remove .profile if it exists
     removeProfile = lib.hm.dag.entryAfter ["writeBoundary"] ''
@@ -117,15 +117,6 @@
         rm -f "$PROFILE_PATH"
       else
         echo "$PROFILE_PATH does not exist (nothing to remove)"
-      fi
-    '';
-    cloneEmacsConfig = lib.hm.dag.entryAfter ["removeProfile"] ''
-      EMACS_DIR="$HOME/.emacs.d"
-      if [ ! -d "$EMACS_DIR" ]; then
-        echo "Cloning emacs configuration repository..."
-        ${pkgs.git}/bin/git clone git@github.com:davebenvenuti/emacs.d.git "$EMACS_DIR"
-      else
-        echo "Emacs configuration already exists at $EMACS_DIR"
       fi
     '';
   };

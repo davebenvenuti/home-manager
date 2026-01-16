@@ -33,6 +33,7 @@
             inherit system;
             inherit homeDirectory;
             inherit features;
+            configDir = builtins.toString ./.;
           };
         in
         home-manager.lib.homeManagerConfiguration {
