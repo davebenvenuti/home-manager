@@ -9,7 +9,7 @@
 
   programs.zsh = {
     shellAliases = {
-      cat="bat --paging=never"
+      cat="bat --paging=never";
     };
   };
 }
