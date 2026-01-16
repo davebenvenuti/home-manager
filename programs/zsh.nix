@@ -21,6 +21,10 @@
 
     # Read the extra configuration from a separate file
     initExtra = builtins.readFile ./zsh.extra;
+
+    shellAliases = {
+      grep = "grep --color=auto";
+    };
   };
 
   # Further modified in features/zshrc-private-sync.nix
