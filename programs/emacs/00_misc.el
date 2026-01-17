@@ -1,31 +1,6 @@
 (use-package rg
   :straight t) ;; ripgrep
 
-;; C-c C-t copy mode (navigate terminal output)
-(use-package vterm ;; better terminal
-  :straight t
-  :config
-  (setq vterm-max-scrollback 10000)
-  (setq vterm-use-vterm-color t)
-  (setq vterm-kill-buffer-on-exit t)
-  (defun my/toggle-vterm-window ()
-    "Toggle a vterm window at the bottom of the screen with height 13."
-    (interactive)
-    (let ((vterm-buffer-name "*vterm (lower)*"))
-      (let ((vterm-buffer (get-buffer vterm-buffer-name))
-            (vterm-window (get-buffer-window vterm-buffer-name)))
-        (if vterm-window
-            (delete-window vterm-window)
-          (progn
-            (split-window-below (- (window-height) 13))
-            (other-window 1)
-            (if vterm-buffer
-		(switch-to-buffer vterm-buffer)
-              (progn
-                (vterm vterm-buffer-name)
-                (display-line-numbers-mode 0))))))))
-  (global-set-key (kbd "C-c v") 'my/toggle-vterm-window))
-
 (use-package ag
   :straight t) ;; Silver Searcher (ag) mode
 
