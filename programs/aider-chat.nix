@@ -3,7 +3,7 @@
 {
   programs.aider-chat = {
     enable = features.aider;
-    package = pkgs.aider-chat;
+    package = pkgs.aider-chat-with-playwright;
 
     settings = {
       model = "deepseek/deepseek-coder";

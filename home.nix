@@ -47,7 +47,6 @@
     # Emacs without X11 GUI
     emacs-nox
 
-    aider-chat
     # jq for JSON processing in activation scripts
     jq
 
@@ -65,7 +64,9 @@
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
-  ] ++ lib.optional features.bitwarden-cli pkgs.bitwarden-cli;
+  ]
+  ++ (lib.optional features.bitwarden-cli pkgs.bitwarden-cli)
+  ++ (lib.optional features.aider pkgs.aider-chat-with-playwright);
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
