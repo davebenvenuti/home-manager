@@ -56,4 +56,9 @@
       side-by-side = true;
     };
   };
+
+  home.packages = with pkgs; [
+    # Tig - text-mode interface for Git
+    tig
+  ];
 }

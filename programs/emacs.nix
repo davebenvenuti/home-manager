@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 let
   emacsSourceDir = ./emacs;
@@ -20,6 +20,10 @@ let
 in
 {
   programs.emacs.enable = false;
+
+  home.packages = with pkgs; [
+    emacs-nox
+  ];
 
   # Install elisp files and .keep files to ~/.emacs.d
   home.file =
