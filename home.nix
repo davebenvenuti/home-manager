@@ -63,8 +63,7 @@ in
     #   echo "Hello, ${config.home.username}!"
     # '')
   ]
-  ++ (lib.optional features.bitwarden-cli pkgs.bitwarden-cli)
-  ++ (lib.optional features.aider pkgs.aider-chat-with-playwright);
+  ++ (lib.optional features.bitwarden-cli pkgs.bitwarden-cli);
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
@@ -103,10 +102,11 @@ in
     ./programs/zsh.nix
     ./programs/eza.nix
     ./programs/bat.nix
-    ./programs/aider-chat.nix
     ./programs/starship.nix
     ./programs/emacs.nix
+
     ./features/zshrc-private-sync.nix
+    ./features/aider.nix
   ];
 
   # Activation scripts run after configuration is applied
