@@ -1,7 +1,10 @@
 { config, pkgs, lib, ... }:
 
+let
+  initContentExtra = builtins.readFile ./zsh.extra;
+in
 {
-  programs.zsh = {
+  programs.zsh = with lib; {
     enable = true;
 
     # Enable useful features
@@ -20,7 +23,7 @@
     };
 
     # Read the extra configuration from a separate file
-    initExtra = builtins.readFile ./zsh.extra;
+    initContent = mkAfter initContentExtra;
 
     shellAliases = {
       grep = "grep --color=auto";
