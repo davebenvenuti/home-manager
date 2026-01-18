@@ -26,8 +26,12 @@
       # Function to create a home configuration for a given system
       mkHomeConfig = system: homeDirectory: features:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
-          isDarwin = system == "aarch64-darwin";
+          # pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+
           extraSpecialArgs = {
             inherit darwin;
             inherit system;
@@ -47,7 +51,6 @@
         zshrc-private-sync = true;
         aider = true;
         ghostty = false;
-        nodejs = true;
       };
     in
     {

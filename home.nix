@@ -105,14 +105,9 @@ in
     ./programs/bat.nix
     ./programs/aider-chat.nix
     ./programs/starship.nix
-    ./custom/nodejs.nix
     ./programs/emacs.nix
     ./features/zshrc-private-sync.nix
   ];
-
-  custom.nodejs = {
-    enable = features.nodejs;
-  };
 
   # Activation scripts run after configuration is applied
   home.activation = {
