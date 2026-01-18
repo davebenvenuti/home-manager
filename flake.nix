@@ -47,7 +47,7 @@
         zshrc-private-sync = true;
         aider = true;
         ghostty = false;
-        nodejs = false;
+        nodejs = true;
       };
     in
     {
