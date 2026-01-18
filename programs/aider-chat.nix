@@ -18,6 +18,7 @@
       dirty-commits = false;
       lint = false;
       watch-files = true;
+      edit-format = "whole";
     };
   };
 }

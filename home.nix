@@ -1,6 +1,31 @@
 { config, pkgs, lib, darwin, system, features, homeDirectory, ... }:
 
+let username = "dave";
+in
 {
+  # Home Manager needs a bit of information about you and the paths it should
+  # manage.
+  home.username = username;
+  home.homeDirectory = homeDirectory;
+
+  # This works better in /etc/nix/nix.conf or if you're a trust-user (which isn't recommended)
+  # nix = {
+  #   package = pkgs.nix;
+  #   settings = {
+  #    substituters = [
+  #      "https://cache.nixos.org"
+  #      "https://nix-community.cachix.org"
+  #    ];
+
+  #    trusted-public-keys = [
+  #      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+  #      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+  #    ];
+
+  #    experimental-features = "nix-command flakes";
+  #   };
+  # };
+
   # Validate features
   assertions = [
     {
@@ -8,11 +33,6 @@
       message = "If features.zshrc-private-sync is true, then features.bitwarden-cli must also be true";
     }
   ];
-
-  # Home Manager needs a bit of information about you and the paths it should
-  # manage.
-  home.username = "dave";
-  home.homeDirectory = homeDirectory;
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -85,9 +105,14 @@
     ./programs/bat.nix
     ./programs/aider-chat.nix
     ./programs/starship.nix
+    ./custom/nodejs.nix
     ./programs/emacs.nix
     ./features/zshrc-private-sync.nix
   ];
+
+  custom.nodejs = {
+    enable = features.nodejs;
+  };
 
   # Activation scripts run after configuration is applied
   home.activation = {

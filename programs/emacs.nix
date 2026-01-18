@@ -19,10 +19,17 @@ let
   ) subDirs;
 in
 {
+  # We'll manage our own config for now
   programs.emacs.enable = false;
 
   home.packages = with pkgs; [
     emacs-nox
+  ];
+
+  # This will noop if !custom.nodejs.enable
+  # See: custom/nodejs.nix
+  custom.nodejs.globalNpmPackages = [
+    "@github/copilot-language-server"
   ];
 
   # Install elisp files and .keep files to ~/.emacs.d
