@@ -71,6 +71,22 @@
   (completion-category-defaults nil) ;; Disable defaults, use our settings
   (completion-pcm-leading-wildcard t)) ;; Emacs 31: partial-completion behaves like substring
 
+;; Consult - useful commands built on completing-read
+(use-package consult
+  :bind (;; File finding with project-relative paths
+         ("C-x C-f" . consult-fd)  ;; Uses fd, shows project-relative paths
+         ("C-x f" . find-file)     ;; Keep original find-file available
+         ;; Other useful consult commands
+         ("C-x b" . consult-buffer)
+         ("M-g g" . consult-goto-line)
+         ("M-g M-g" . consult-goto-line)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line))
+  :config
+  ;; Use project root as default directory for consult-fd
+  (setq consult-fd-args '((if (executable-find "fdfind") "fdfind" "fd")
+                          "--full-path" "--color=never")))
+
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
