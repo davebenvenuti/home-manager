@@ -26,7 +26,7 @@
     (if (= (length vertico--candidates) 1)
         (minibuffer-complete)
       (vertico-next)))
-  
+
   ;; Make TAB use custom behavior
   ;; Unbind any existing TAB bindings that might interfere
   (keymap-unset vertico-map "TAB")
@@ -79,7 +79,6 @@
          ;; Other useful consult commands
          ("C-x b" . consult-buffer)
          ("M-g g" . consult-goto-line)
-         ("M-g M-g" . consult-goto-line)
          ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line))
   :config
