@@ -25,9 +25,6 @@
 (setq straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
-(require 'use-package-ensure)
-(setq use-package-always-ensure t)
-
 ;; Load all *.el files in ~/.emacs.d in lexographical order.  Also note that
 ;; *.private.el is git ignored.
 (let ((config-files (directory-files user-emacs-directory t "^[^#].*\\.el$")))
