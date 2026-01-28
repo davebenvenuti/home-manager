@@ -67,9 +67,7 @@ in
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
-  home.file = lib.optionalAttrs features.ghostty {
-    "Library/Application Support/com.mitchellh.ghostty/config".source = ./features/ghostty/config;
-  };
+  home.file = { };
 
   home.sessionPath = [ "$HOME/.local/bin" ];
 
@@ -107,6 +105,7 @@ in
 
     ./features/zshrc-private-sync.nix
     ./features/aider.nix
+    ./features/ghostty.nix
   ];
 
   # Activation scripts run after configuration is applied
