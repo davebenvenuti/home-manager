@@ -25,6 +25,7 @@ in
   home.packages = with pkgs; [
     emacs-nox
     copilot-language-server
+    fd # for consult-fd
   ];
 
   # Install elisp files and .keep files to ~/.emacs.d
