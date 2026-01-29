@@ -106,6 +106,7 @@ in
     ./features/zshrc-private-sync.nix
     ./features/aider.nix
     ./features/ghostty.nix
+    ./features/opencode.nix
   ];
 
   # Activation scripts run after configuration is applied

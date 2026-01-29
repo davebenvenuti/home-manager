@@ -51,6 +51,7 @@
         zshrc-private-sync = true;
         aider = true;
         ghostty = false;
+        opencode = true;
       };
     in
     {
