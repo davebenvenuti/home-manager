@@ -84,7 +84,7 @@
   :config
   ;; Use project root as default directory for consult-fd
   (setq consult-fd-args '((if (executable-find "fdfind") "fdfind" "fd")
-                          "--full-path" "--color=never")))
+                          "--full-path" "--color=never" "-H" "-E" ".git" "-E" "node_modules")))
 
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
