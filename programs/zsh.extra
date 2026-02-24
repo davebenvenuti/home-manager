@@ -27,6 +27,20 @@ zle -N self-insert url-quote-magic
 # Load zsh hook functions once
 autoload -Uz add-zsh-hook
 
+# Record command start/end time for starship prompt
+add-zsh-hook preexec _record_cmd_start_time
+_record_cmd_start_time() {
+  export CMD_START_TIME=$(date +"%H:%M:%S")
+  unset CMD_END_TIME
+}
+
+add-zsh-hook precmd _record_cmd_end_time
+_record_cmd_end_time() {
+  if [[ -n "$CMD_START_TIME" && -z "$CMD_END_TIME" ]]; then
+    export CMD_END_TIME=$(date +"%H:%M:%S")
+  fi
+}
+
 # chpwd hook for tmux window renaming
 add-zsh-hook -Uz chpwd() {
   # Only rename if:
