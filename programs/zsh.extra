@@ -34,6 +34,43 @@ add-zsh-hook -Uz chpwd() {
   # 2. This is the main interactive zsh shell (not a subshell)
   # 3. No foreground command is currently running
   if [[ -n "$TMUX" && "$(ps -o comm= -p $$)" == "zsh" && $ZSH_SUBSHELL -eq 0 &&  -z "$_ZSH_HOOK_RUNNING" ]]; then
-    tmux rename-window "${PWD/#$HOME/~}"
+    # Get current pane command
+    local pane_cmd=$(tmux display-message -p "#{pane_current_command}")
+    # Only rename if not running a long-lived application that sets its own title
+    if [[ ! "$pane_cmd" =~ ^(opencode|emacs|vim|nano|ssh|mosh|telnet|rlogin)$ ]]; then
+      tmux rename-window "${PWD/#$HOME/~}"
+    fi
   fi
 }
+
+# Function to set initial window name when shell starts or tmux attaches
+_tmux_set_initial_window_name() {
+  if [[ -n "$TMUX" && "$(ps -o comm= -p $$)" == "zsh" && $ZSH_SUBSHELL -eq 0 ]]; then
+    # Check if window already has a custom name (not just shell or default)
+    local current_name=$(tmux display-message -p "#W")
+    local pane_cmd=$(tmux display-message -p "#{pane_current_command}")
+    
+    # If window name is just "zsh" or matches pane command, set it to directory
+    if [[ "$current_name" == "zsh" || "$current_name" == "$pane_cmd" ]]; then
+      # Only rename if not running a long-lived application
+      if [[ ! "$pane_cmd" =~ ^(opencode|emacs|vim|nano|ssh|mosh|telnet|rlogin)$ ]]; then
+        tmux rename-window "${PWD/#$HOME/~}"
+      fi
+    fi
+  fi
+}
+
+# Run on shell startup
+_tmux_set_initial_window_name
+
+# Also run when tmux client attaches (handles reattachment case)
+if [[ -n "$TMUX" ]]; then
+  # Use precmd to check after each command completes
+  add-zsh-hook -Uz precmd() {
+    # Only run occasionally to avoid performance issues
+    if [[ -z "$_TMUX_LAST_CHECK" || $(( $(date +%s) - $_TMUX_LAST_CHECK )) -gt 10 ]]; then
+      _tmux_set_initial_window_name
+      _TMUX_LAST_CHECK=$(date +%s)
+    fi
+  }
+fi
