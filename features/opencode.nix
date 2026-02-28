@@ -7,6 +7,9 @@
     settings = {
       model = "deepseek/deepseek-chat";
       autoupdate = false;
+      permission = {
+        "*" = "ask";
+      };
     };
   };
 }
