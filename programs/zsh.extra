@@ -15,7 +15,8 @@ if [ -e ~/.zshrc.private ]; then
 fi
 
 if [[ $- =~ i ]] && [[ -z "$TMUX" ]] && [[ -n "$SSH_TTY" ]]; then
-  tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
+  # Use -A flag: attach if exists, create if doesn't (atomic)
+  tmux new-session -A -s ssh_tmux
 fi
 
 # Better handle urls and other pasted content
@@ -27,50 +28,48 @@ zle -N self-insert url-quote-magic
 # Load zsh hook functions once
 autoload -Uz add-zsh-hook
 
-# chpwd hook for tmux window renaming
-add-zsh-hook -Uz chpwd() {
-  # Only rename if:
-  # 1. Inside tmux
-  # 2. This is the main interactive zsh shell (not a subshell)
-  # 3. No foreground command is currently running
-  if [[ -n "$TMUX" && "$(ps -o comm= -p $$)" == "zsh" && $ZSH_SUBSHELL -eq 0 &&  -z "$_ZSH_HOOK_RUNNING" ]]; then
-    # Get current pane command
-    local pane_cmd=$(tmux display-message -p "#{pane_current_command}")
-    # Only rename if not running a long-lived application that sets its own title
-    if [[ ! "$pane_cmd" =~ ^(opencode|emacs|vim|nano|ssh|mosh|telnet|rlogin)$ ]]; then
-      tmux rename-window "${PWD/#$HOME/~}"
+# SIMPLE SOLUTION: Use escape sequences for window titles
+# precmd: set title to directory after command completes
+# preexec: set title to command about to run
+# chpwd: set title when directory changes
+
+# Function to set window title to current directory with tilde expansion
+_set_window_title_to_dir() {
+  if [[ -n "$TMUX" ]]; then
+    local title
+    if [[ "$PWD" == "$HOME" ]]; then
+      title="~"
+    elif [[ "$PWD" == "$HOME"/* ]]; then
+      title="~${PWD#$HOME}"
+    else
+      title="$PWD"
     fi
+    # Use xterm escape sequence to set window title
+    printf '\033]2;%s\007' "$title"
   fi
 }
 
-# Function to set initial window name when shell starts or tmux attaches
-_tmux_set_initial_window_name() {
-  if [[ -n "$TMUX" && "$(ps -o comm= -p $$)" == "zsh" && $ZSH_SUBSHELL -eq 0 ]]; then
-    # Check if window already has a custom name (not just shell or default)
-    local current_name=$(tmux display-message -p "#W")
-    local pane_cmd=$(tmux display-message -p "#{pane_current_command}")
-    
-    # If window name is just "zsh" or matches pane command, set it to directory
-    if [[ "$current_name" == "zsh" || "$current_name" == "$pane_cmd" ]]; then
-      # Only rename if not running a long-lived application
-      if [[ ! "$pane_cmd" =~ ^(opencode|emacs|vim|nano|ssh|mosh|telnet|rlogin)$ ]]; then
-        tmux rename-window "${PWD/#$HOME/~}"
-      fi
+# Function to set window title to command about to run
+_set_window_title_to_cmd() {
+  if [[ -n "$TMUX" ]]; then
+    local cmd="$1"
+    # Truncate long commands
+    if [[ ${#cmd} -gt 30 ]]; then
+      cmd="${cmd:0:27}..."
     fi
+    printf '\033]2;%s\007' "$cmd"
   fi
 }
 
-# Run on shell startup
-_tmux_set_initial_window_name
+# Set title when directory changes
+add-zsh-hook -Uz chpwd _set_window_title_to_dir
 
-# Also run when tmux client attaches (handles reattachment case)
-if [[ -n "$TMUX" ]]; then
-  # Use precmd to check after each command completes
-  add-zsh-hook -Uz precmd() {
-    # Only run occasionally to avoid performance issues
-    if [[ -z "$_TMUX_LAST_CHECK" || $(( $(date +%s) - $_TMUX_LAST_CHECK )) -gt 10 ]]; then
-      _tmux_set_initial_window_name
-      _TMUX_LAST_CHECK=$(date +%s)
-    fi
-  }
-fi
+# Set title to command before it runs
+add-zsh-hook -Uz preexec _set_window_title_to_cmd
+
+# Set title back to directory after command completes
+add-zsh-hook -Uz precmd _set_window_title_to_dir
+
+# Set initial title
+_set_window_title_to_dir
+

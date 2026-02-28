@@ -8,7 +8,9 @@
       model = "deepseek/deepseek-chat";
       autoupdate = false;
       permission = {
-        "*" = "ask";
+        "bash" = "ask";
+        "webfetch" = "allow";
+        "websearch" = "allow";
       };
     };
   };
