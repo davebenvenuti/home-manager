@@ -34,8 +34,6 @@ add-zsh-hook -Uz chpwd() {
   # 2. This is the main interactive zsh shell (not a subshell)
   # 3. No foreground command is currently running
   if [[ -n "$TMUX" && "$(ps -o comm= -p $$)" == "zsh" && $ZSH_SUBSHELL -eq 0 &&  -z "$_ZSH_HOOK_RUNNING" ]]; then
-    tmux set-option -w allow-rename off
     tmux rename-window "${PWD/#$HOME/~}"
-    tmux set-option -w allow-rename on
   fi
 }
