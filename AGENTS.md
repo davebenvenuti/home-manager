@@ -8,6 +8,13 @@ This is a home-manager nix configuration for managing user environments across L
 
 `home-manager switch -b hmbackup`
 
+### Create a new Rails project
+
+Create new Rails projects using:
+```bash
+nix run nixpkgs#rubyPackages_3_4.rails -- new project_name
+
+
 ## Feature Flags
 
 The configuration is customizable via feature flags defined in `flake.nix`. These flags enable or disable specific packages and configurations:
