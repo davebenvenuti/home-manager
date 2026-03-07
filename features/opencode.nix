@@ -9,7 +9,7 @@
       autoupdate = false;
       permission = {
         "bash" = {
-          "*" = "task";
+          "*" = "ask";
           "ls *" = "allow";
           "which *" = "allow";
         };
