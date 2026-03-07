@@ -11,6 +11,7 @@
     settings = {
       font-family = "Menlo";
       font-size = 20;
+      # See: https://github.com/anomalyco/opencode/issues/15907#issuecomment-3994009370
       "copy-on-select" = "clipboard";
       "clipboard-read" = "allow";
       "clipboard-write" = "allow";
