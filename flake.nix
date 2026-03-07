@@ -53,15 +53,18 @@
         ghostty = false;
         opencode = true;
         direnv = true;
+        ruby = false;
       };
     in
     {
       # Home configurations
       homeConfigurations = {
         "dave@shithouse" = mkHomeConfig "x86_64-linux" "/home/dave" (defaultFeatures // {
+          ruby = true;
         });
         "dave@air" = mkHomeConfig "aarch64-darwin" "/Users/dave" (defaultFeatures // {
           ghostty = true;
+          ruby = true;
         });
       };
     };

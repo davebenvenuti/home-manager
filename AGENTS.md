@@ -2,6 +2,12 @@
 
 This is a home-manager nix configuration for managing user environments across Linux and macOS systems.
 
+## Common Tasks
+
+### Apply home-manager config
+
+`home-manager switch -b hmbackup`
+
 ## Feature Flags
 
 The configuration is customizable via feature flags defined in `flake.nix`. These flags enable or disable specific packages and configurations:
@@ -12,5 +18,6 @@ The configuration is customizable via feature flags defined in `flake.nix`. Thes
 - `ghostty`: Terminal emulator (enabled on macOS by default)
 - `opencode`: Interactive CLI tool for software engineering tasks
 - `direnv`: Environment variable management tool
+- `ruby`: Ruby 3.4 programming language
 
 Feature flags can be configured per system in the `homeConfigurations` section of `flake.nix`.

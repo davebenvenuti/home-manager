@@ -108,6 +108,7 @@ in
     ./features/ghostty.nix
     ./features/opencode.nix
     ./features/direnv.nix
+    ./features/ruby.nix
   ];
 
   # Activation scripts run after configuration is applied
