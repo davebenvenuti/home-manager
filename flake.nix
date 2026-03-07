@@ -52,6 +52,7 @@
         aider = true;
         ghostty = false;
         opencode = true;
+        direnv = true;
       };
     in
     {

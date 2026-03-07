@@ -107,6 +107,7 @@ in
     ./features/aider.nix
     ./features/ghostty.nix
     ./features/opencode.nix
+    ./features/direnv.nix
   ];
 
   # Activation scripts run after configuration is applied

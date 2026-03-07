@@ -11,5 +11,6 @@ The configuration is customizable via feature flags defined in `flake.nix`. Thes
 - `aider`: AI-powered coding assistant
 - `ghostty`: Terminal emulator (enabled on macOS by default)
 - `opencode`: Interactive CLI tool for software engineering tasks
+- `direnv`: Environment variable management tool
 
 Feature flags can be configured per system in the `homeConfigurations` section of `flake.nix`.
