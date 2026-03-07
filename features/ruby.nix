@@ -1,6 +1,7 @@
 { lib, features, pkgs, ... }:
 {
-  home.packages = lib.mkIf features.ruby [
-    pkgs.ruby_3_4
+  home.packages = with pkgs; lib.mkIf features.ruby [
+    ruby_3_4
+
   ];
 }
