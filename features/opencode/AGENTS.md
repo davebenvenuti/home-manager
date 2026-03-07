@@ -7,5 +7,5 @@
 Create new Rails projects using:
 
 ```bash
-nix run nixpkgs#rubyPackages_3_4.rails -- new project_name
+nix-shell -p ruby_3_4 rubyPackages_3_4.rails --run "rails new [project_name]"
 ```
