@@ -11,6 +11,9 @@
     settings = {
       font-family = "Menlo";
       font-size = 20;
+      "copy-on-select" = "clipboard";
+      "clipboard-read" = "allow";
+      "clipboard-write" = "allow";
     };
   };
 }
