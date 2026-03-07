@@ -2,13 +2,17 @@
 {
   programs.opencode = lib.mkIf features.opencode {
     enable = true;
-    package = pkgs.opencode; # Assuming opencode is available in pkgs
+    package = pkgs.opencode;
 
     settings = {
       model = "deepseek/deepseek-chat";
       autoupdate = false;
       permission = {
-        "bash" = "ask";
+        "bash" = {
+          "*" = "task";
+          "ls *" = "allow";
+          "which *" = "allow";
+        };
         "webfetch" = "allow";
         "websearch" = "allow";
       };
