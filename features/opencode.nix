@@ -18,4 +18,8 @@
       };
     };
   };
+
+  home.file.".config/opencode/AGENTS.md" = {
+    source = ./opencode/AGENTS.md;
+  };
 }
