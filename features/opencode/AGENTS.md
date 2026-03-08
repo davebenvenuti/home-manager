@@ -1,13 +1,69 @@
 # General/Global AGENTS.md
 
+**IMPORTANT: This file is managed by home-manager + Nix**
+- Location: `~/.config/home-manager/features/opencode/AGENTS.md`
+- Managed via: Home Manager Nix configuration
+- To modify: Edit this file directly, then run `home-manager switch` to apply changes
+- The file at `~/.config/opencode/AGENTS.md` is a symlink to this location
+
 ## Common Tasks
 
 ### Create a new Rails project
 
-Create new Rails projects using:
-
+**For Rails 7.x (Ruby 3.4):**
 ```bash
 nix-shell -p ruby_3_4 rubyPackages_3_4.rails --run "rails new [project_name]"
+```
+
+**For Rails 8.x (Ruby 4.0):**
+Nix packages currently provide Rails 7.2.3 even with Ruby 4.0. To create a Rails 8 app:
+
+Option 1: Use a clean environment (recommended):
+```bash
+cd /tmp
+nix-shell -p ruby_4_0 sqlite libyaml --run "gem install rails -v 8.0.0 && rails new [project_name] --database=sqlite3"
+mv [project_name] /path/to/desired/location
+```
+
+Option 2: Create with flake.nix first:
+```bash
+# Create project directory
+mkdir [project_name] && cd [project_name]
+
+# Create flake.nix with Ruby 4.0
+cat > flake.nix << 'EOF'
+{
+  description = "Developer environment for Rails app";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
+
+  outputs = { self, nixpkgs }:
+    let
+      supportedSystems = [ "aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux" ];
+      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f {
+        pkgs = import nixpkgs { inherit system; };
+      });
+    in {
+      devShells = forAllSystems ({ pkgs }: with pkgs; {
+        default = mkShell {
+          packages = [
+            git
+            gnumake
+            nixpkgs-fmt
+            ruby_4_0
+            sqlite
+            libyaml
+          ];
+        };
+      });
+    };
+}
+EOF
+
+# Enter Nix shell and create Rails app
+nix develop --command bash -c "gem install rails -v 8.0.0 && rails new . --database=sqlite3 --skip-bundle"
 ```
 
 ### Nix-managed Rails Development Environment
@@ -22,7 +78,7 @@ When working with existing Rails projects that use Nix for development environme
 
 #### Example flake.nix for Rails projects:
 
-**PostgreSQL-based Rails app:**
+**PostgreSQL-based Rails app (Ruby 4.0):**
 ```nix
 {
   description = "Developer environment for Rails app";
@@ -44,7 +100,7 @@ When working with existing Rails projects that use Nix for development environme
             git
             gnumake
             nixpkgs-fmt
-            ruby_3_4
+            ruby_4_0
             postgresql_18
             libyaml  # Required for psych gem
           ];
@@ -54,7 +110,7 @@ When working with existing Rails projects that use Nix for development environme
 }
 ```
 
-**SQLite-based Rails app:**
+**SQLite-based Rails app (Ruby 4.0):**
 ```nix
 {
   description = "Developer environment for Rails app";
@@ -76,7 +132,7 @@ When working with existing Rails projects that use Nix for development environme
             git
             gnumake
             nixpkgs-fmt
-            ruby_3_4
+            ruby_4_0
             sqlite  # SQLite database
             libyaml  # Required for psych gem
           ];
