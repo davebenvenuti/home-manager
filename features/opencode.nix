@@ -12,6 +12,8 @@
           "*" = "ask";
           "ls *" = "allow";
           "which *" = "allow";
+          "mkdir *" = "allow";
+          "echo *" = "allow";
         };
         "webfetch" = "allow";
         "websearch" = "allow";
