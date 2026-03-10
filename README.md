@@ -93,3 +93,22 @@ This configuration includes a system to securely sync your `~/.zshrc.private` fi
 ### How the prompt indicator updates:
 
 The indicator is part of the PROMPT string itself (`$(_zshrc_private_prompt_indicator)`), so it's evaluated each time the prompt is displayed. This means it updates automatically without needing to reload your shell or run special commands.
+
+## Containers Configuration
+
+This configuration includes optional container management via Podman/Quadlet. The containers configuration is stored as a git submodule.
+
+### Setup:
+1. Clone the submodule: `git submodule update --init --recursive`
+2. Enable containers feature in `flake.nix` by setting `containers = true` in the features object
+3. Apply configuration: `home-manager switch`
+
+### Default Behavior:
+- **Default**: `containers = false` (disabled by default)
+- **shithouse**: `containers = true` (enabled for Linux server)
+- **air**: `containers = false` (disabled for macOS laptop)
+
+### Notes:
+- The containers configuration is optional and only loaded if the submodule exists
+- The `features.containers` flag controls whether to attempt loading
+- If the submodule is not cloned, the configuration will skip containers gracefully

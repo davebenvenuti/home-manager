@@ -1,0 +1,4 @@
+[submodule "features/containers"]
+	path = features/containers
+	url = git@github.com:davebenvenuti/quadlet-configs.git
+	branch = home-manager

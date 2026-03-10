@@ -1,8 +1,12 @@
 { lib, features, inputs, ... }:
 
-lib.optionalAttrs (features.containers or false) {
+let
+  containersModulePath = ./containers/default.nix;
+  containersModuleExists = builtins.pathExists containersModulePath;
+in
+lib.optionalAttrs (features.containers or false && containersModuleExists) {
   imports = [
     inputs.sops-nix.homeManagerModules.sops
-    inputs.containers.homeManagerModules.default
+    containersModulePath
   ];
 }

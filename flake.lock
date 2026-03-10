@@ -1,20 +1,5 @@
 {
   "nodes": {
-    "containers": {
-      "locked": {
-        "lastModified": 1773172258,
-        "narHash": "sha256-8xWmMX/NwgiE26eOlvGRXJW64U5o76fjjq4DYSu7MVY=",
-        "ref": "refs/heads/home-manager",
-        "rev": "b06b30249db86895da06bd05f6e502f3561954db",
-        "revCount": 86,
-        "type": "git",
-        "url": "file:///home/dave/.config/containers/systemd"
-      },
-      "original": {
-        "type": "git",
-        "url": "file:///home/dave/.config/containers/systemd"
-      }
-    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -73,7 +58,6 @@
     },
     "root": {
       "inputs": {
-        "containers": "containers",
         "darwin": "darwin",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
