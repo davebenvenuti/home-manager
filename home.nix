@@ -110,6 +110,7 @@ in
     ./features/opencode.nix
     ./features/direnv.nix
     ./features/ruby.nix
+    ./features/containers.nix
   ];
 
   # Activation scripts run after configuration is applied

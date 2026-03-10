@@ -1,5 +1,20 @@
 {
   "nodes": {
+    "containers": {
+      "locked": {
+        "lastModified": 1773104129,
+        "narHash": "sha256-Yp8oC3Ke3kYhIUEQdsBUgPYvCk0cxVnTuY0Lye6qDZU=",
+        "ref": "refs/heads/home-manager",
+        "rev": "485135e22a689900121249a145794b7d42949f93",
+        "revCount": 58,
+        "type": "git",
+        "url": "file:///home/dave/.config/containers/systemd"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///home/dave/.config/containers/systemd"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -58,9 +73,31 @@
     },
     "root": {
       "inputs": {
+        "containers": "containers",
         "darwin": "darwin",
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "sops-nix": "sops-nix"
+      }
+    },
+    "sops-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773096132,
+        "narHash": "sha256-M3zEnq9OElB7zqc+mjgPlByPm1O5t2fbUrH3t/Hm5Ag=",
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "rev": "d1ff3b1034d5bab5d7d8086a7803c5a5968cd784",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "type": "github"
       }
     }
   },

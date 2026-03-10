@@ -15,9 +15,16 @@
       url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # For secret management in containers
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Containers configuration
+    containers.url = "git+file:///home/dave/.config/containers/systemd";
   };
 
-  outputs = { nixpkgs, home-manager, darwin, ... }:
+  outputs = { nixpkgs, home-manager, darwin, sops-nix, containers, ... }:
     let
       # Supported systems
       supportedSystems = [ "x86_64-linux" "aarch64-darwin" ];
@@ -38,12 +45,16 @@
             inherit homeDirectory;
             inherit features;
             configDir = builtins.toString ./.;
+            inputs = { inherit sops-nix containers; };
           };
+          
+          # Base modules - containers.nix will handle conditional inclusion
+          modules = [ ./home.nix ];
         in
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           inherit extraSpecialArgs;
-          modules = [ ./home.nix ];
+          modules = modules;
         };
 
       defaultFeatures = {
@@ -54,6 +65,7 @@
         opencode = true;
         direnv = true;
         ruby = false;
+        containers = true;
       };
     in
     {
