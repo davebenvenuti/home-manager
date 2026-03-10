@@ -2,11 +2,11 @@
   "nodes": {
     "containers": {
       "locked": {
-        "lastModified": 1773163086,
-        "narHash": "sha256-UVO0hMVauZBGJBZFAfD+PcIbhxxnAD8USsjzsfqFfwI=",
+        "lastModified": 1773163249,
+        "narHash": "sha256-liZIRC05/j1w4KpBlCxJ9mJPtBAV8V1rGckMzeBPk3c=",
         "ref": "refs/heads/home-manager",
-        "rev": "f82691d186e6f27794ba6c517dc051c2845e62cd",
-        "revCount": 74,
+        "rev": "68987a3fb13db0fc1eff97a901b9454c5b200a82",
+        "revCount": 75,
         "type": "git",
         "url": "file:///home/dave/.config/containers/systemd"
       },
