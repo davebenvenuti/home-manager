@@ -23,6 +23,7 @@
           "wc *" = "allow";
           "grep *" = "allow";
           "sort *" = "allow";
+          "pwd *" = "allow";
         };
         "webfetch" = "allow";
         "websearch" = "allow";
