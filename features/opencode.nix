@@ -20,6 +20,7 @@
           "find *" = "allow";
           "git remote -v" = "allow";
           "git log *" = "allow";
+          "wc *" = "allow";
         };
         "webfetch" = "allow";
         "websearch" = "allow";
