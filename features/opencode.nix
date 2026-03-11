@@ -18,6 +18,7 @@
           "head *" = "allow";
           "tail *" = "allow";
           "find *" = "allow";
+          "git remote -v" = "allow";
         };
         "webfetch" = "allow";
         "websearch" = "allow";
