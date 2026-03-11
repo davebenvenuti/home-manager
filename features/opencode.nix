@@ -21,6 +21,8 @@
           "git remote -v" = "allow";
           "git log *" = "allow";
           "wc *" = "allow";
+          "grep *" = "allow";
+          "sort *" = "allow";
         };
         "webfetch" = "allow";
         "websearch" = "allow";
