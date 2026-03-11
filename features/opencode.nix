@@ -14,6 +14,10 @@
           "which *" = "allow";
           "mkdir *" = "allow";
           "echo *" = "allow";
+          "git status *" = "allow";
+          "head *" = "allow";
+          "tail *" = "allow";
+          "find *" = "allow";
         };
         "webfetch" = "allow";
         "websearch" = "allow";
