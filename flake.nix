@@ -54,6 +54,7 @@
         opencode = true;
         direnv = true;
         ruby = false;
+        monitoring = true;
       };
     in
     {
