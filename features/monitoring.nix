@@ -8,9 +8,9 @@
       duf
       ncdu
       bandwhich
-      nmon
     ] ++ lib.optionals (!stdenv.isDarwin) [
       iotop
+      nmon
     ]
   );
 }
