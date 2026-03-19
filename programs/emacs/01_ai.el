@@ -68,17 +68,17 @@ An optional DELIMITER can be provided, defaulting to a comma."
 ;;         :models (env-var-to-list "GPTEL_MODELS"))
 ;;       gptel-max-tokens (string-to-number (or (getenv "GPTEL_MAX_TOKENS") "16384"))))
 
-(use-package copilot
-  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-  :ensure t
-  :config
-  (setq copilot-indent-offset-warning-disable t)
-  (add-hook 'prog-mode-hook 'copilot-mode)
-
-  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "C-c n") 'copilot-next-completion)
-
-  ;; https://github.com/copilot-emacs/copilot.el/issues/312
-  (add-to-list 'copilot-indentation-alist '(prog-mode tab-width))
-  (add-to-list 'copilot-indentation-alist '(org-mode tab-width)))
+;; (use-package copilot
+;;   :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+;;   :ensure t
+;;   :config
+;;   (setq copilot-indent-offset-warning-disable t)
+;;   (add-hook 'prog-mode-hook 'copilot-mode)
+;;
+;;   (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+;;   (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+;;   (define-key copilot-completion-map (kbd "C-c n") 'copilot-next-completion)
+;;
+;;   ;; https://github.com/copilot-emacs/copilot.el/issues/312
+;;   (add-to-list 'copilot-indentation-alist '(prog-mode tab-width))
+;;   (add-to-list 'copilot-indentation-alist '(org-mode tab-width)))
