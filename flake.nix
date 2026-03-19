@@ -55,6 +55,7 @@
         direnv = true;
         ruby = false;
         monitoring = true;
+        pi = false;
       };
     in
     {
@@ -62,6 +63,7 @@
       homeConfigurations = {
         "dave@shithouse" = mkHomeConfig "x86_64-linux" "/home/dave" (defaultFeatures // {
           ruby = true;
+          pi = true;
         });
         "dave@air" = mkHomeConfig "aarch64-darwin" "/Users/dave" (defaultFeatures // {
           ghostty = true;
