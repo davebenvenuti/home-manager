@@ -51,21 +51,23 @@
         zshrc-private-sync = true;
         aider = true;
         ghostty = false;
-        opencode = true;
         direnv = true;
         ruby = false;
         monitoring = true;
-        pi = false;
+        agents = {
+          opencode = true;
+          pi = false;
+        };
       };
     in
     {
       # Home configurations
       homeConfigurations = {
-        "dave@shithouse" = mkHomeConfig "x86_64-linux" "/home/dave" (defaultFeatures // {
+        "dave@shithouse" = mkHomeConfig "x86_64-linux" "/home/dave" (nixpkgs.lib.recursiveUpdate defaultFeatures {
           ruby = true;
-          pi = true;
+          agents.pi = true;
         });
-        "dave@air" = mkHomeConfig "aarch64-darwin" "/Users/dave" (defaultFeatures // {
+        "dave@air" = mkHomeConfig "aarch64-darwin" "/Users/dave" (nixpkgs.lib.recursiveUpdate defaultFeatures {
           ghostty = true;
           ruby = true;
         });

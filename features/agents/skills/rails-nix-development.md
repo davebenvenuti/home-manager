@@ -1,16 +1,10 @@
-# General/Global AGENTS.md
+# Rails Development with Nix
 
-**IMPORTANT: This file is managed by home-manager + Nix**
-- Location: `~/.config/home-manager/features/opencode/AGENTS.md`
-- Managed via: Home Manager Nix configuration
-- To modify: Edit this file directly, then run `home-manager switch` to apply changes
-- The file at `~/.config/opencode/AGENTS.md` is a symlink to this location
+This skill covers Rails development workflows using Nix for environment management.
 
-## Common Tasks
+## Creating a new Rails project
 
-### Create a new Rails project
-
-Create new Rails projects using the clean environment approach (recommended):
+Use the clean environment approach (recommended):
 
 ```bash
 cd /tmp
@@ -18,9 +12,9 @@ nix-shell -p ruby_4_0 sqlite libyaml --run "gem install rails -v 8.0.0 && rails 
 mv [project_name] /path/to/desired/location
 ```
 
-**Note:** This approach ensures you get Rails 8.0.0 with Ruby 4.0, regardless of what Rails version is packaged in Nixpkgs.
+**Note:** This ensures you get Rails 8.0.0 with Ruby 4.0, regardless of what Rails version is packaged in Nixpkgs.
 
-### Nix-managed Rails Development Environment
+## Nix-managed Rails Development Environment
 
 When working with existing Rails projects that use Nix for development environment management:
 
@@ -30,7 +24,7 @@ When working with existing Rails projects that use Nix for development environme
 4. **Install gems**: Run `bundle install` within the Nix shell
 5. **External dependencies**: If gems require external libraries (e.g., `libyaml` for psych, `postgresql` for pg), ensure they're included in the Nix configuration
 
-#### Example flake.nix for Rails projects:
+### Example flake.nix for Rails projects
 
 **PostgreSQL-based Rails app (Ruby 4.0):**
 ```nix
@@ -96,7 +90,7 @@ When working with existing Rails projects that use Nix for development environme
 }
 ```
 
-#### Common Rails development commands in Nix environment:
+## Common Rails development commands in Nix environment
 
 ```bash
 # Enter development environment
@@ -116,12 +110,14 @@ bin/rails db:migrate
 bin/rails server -p 3000
 ```
 
-#### Adding new dependencies:
+## Adding new dependencies
+
 - **Ruby gems**: Add to `Gemfile` and run `bundle install`
 - **System libraries**: Add to `packages` list in `flake.nix` (e.g., `libpq` for PostgreSQL C library, `sqlite` for SQLite database)
 - **Development tools**: Add to `packages` list in `flake.nix`
 
-#### Database-specific considerations:
+## Database-specific considerations
+
 - **PostgreSQL**: Include `postgresql` package and ensure `pg` gem is in Gemfile
 - **SQLite**: Include `sqlite` package and ensure `sqlite3` gem is in Gemfile
 - **MySQL**: Include `mysql` package and ensure `mysql2` gem is in Gemfile

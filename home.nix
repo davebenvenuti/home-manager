@@ -111,11 +111,11 @@ in
     ./features/zshrc-private-sync.nix
     ./features/aider.nix
     ./features/ghostty.nix
-    ./features/opencode.nix
+    ./features/agents/default.nix
     ./features/direnv.nix
     ./features/ruby.nix
     ./features/monitoring.nix
-    ./features/pi.nix
+    
   ];
 
   # Activation scripts run after configuration is applied

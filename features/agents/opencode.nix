@@ -1,6 +1,6 @@
 { lib, features, pkgs, ... }:
 {
-  programs.opencode = lib.mkIf features.opencode {
+  programs.opencode = lib.mkIf features.agents.opencode {
     enable = true;
     package = pkgs.opencode;
 
@@ -31,7 +31,5 @@
     };
   };
 
-  home.file.".config/opencode/AGENTS.md" = {
-    source = ./opencode/AGENTS.md;
-  };
+  
 }

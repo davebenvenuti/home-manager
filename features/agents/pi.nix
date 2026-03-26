@@ -1,7 +1,7 @@
 { lib, features, pkgs, ... }:
 let
-  pi-agent-pkg = pkgs.buildNpmPackage (finalAttrs: {
-    pname = "pi-agent";
+  pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
+    pname = "pi-coding-agent";
     version = "0.60.0";
     nodejs = pkgs.nodejs_22;
 
@@ -51,7 +51,11 @@ let
       platforms = lib.platforms.linux;
     };
   });
-in
-{
-  home.packages = lib.mkIf features.pi [ pi-agent-pkg ];
-}
+ in lib.mkIf features.agents.pi {
+   home.packages = [
+     pi-coding-agent
+   ];
+
+   home.file.".pi/agent/settings.json".source = ./pi/settings.json;
+   home.file.".pi/agent/models.json".source = ./pi/models.json;
+ }
