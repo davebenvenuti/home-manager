@@ -22,7 +22,6 @@ in {
     # Required tools
     doctl
     s3cmd
-    terraform
     
     # Image building tools
     nixos-generators
@@ -37,11 +36,6 @@ in {
     (mkScript "do-upload-nix-image" (builtins.readFile ./digitalocean/scripts/do-upload-nix-image.sh))
     (mkScript "do-enable-nix-image" (builtins.readFile ./digitalocean/scripts/do-enable-nix-image.sh))
   ];
-  
-  # Terraform configuration for DigitalOcean Spaces bucket
-  home.file.".config/digitalocean/terraform/main.tf".source = ./digitalocean/terraform/main.tf;
-  home.file.".config/digitalocean/terraform/variables.tf".source = ./digitalocean/terraform/variables.tf;
-  home.file.".config/digitalocean/terraform/outputs.tf".source = ./digitalocean/terraform/outputs.tf;
   
   # Documentation
   home.file.".config/digitalocean/README.md".text = builtins.readFile ./digitalocean/README.md;

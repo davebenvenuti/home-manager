@@ -5,7 +5,7 @@ This configuration provides tools for building and deploying NixOS images to Dig
 ## Available Commands
 
 1. **do-build-nixos-image** - Build a NixOS image suitable for DigitalOcean droplets
-2. **do-upload-nix-image** - Upload the built image to a DigitalOcean Spaces bucket
+2. **do-upload-nix-image** - Upload the built image to a Backblaze B2 bucket
 3. **do-enable-nix-image** - Make the uploaded image available in DigitalOcean
 
 ## Prerequisites
@@ -15,10 +15,16 @@ This configuration provides tools for building and deploying NixOS images to Dig
    export DIGITALOCEAN_TOKEN="your-api-token-here"
    ```
 
-2. Create a DigitalOcean Spaces bucket (or use the Terraform configuration):
+2. Set your Backblaze B2 credentials:
    ```bash
-   doctl spaces create my-nixos-images --region nyc3
+   export BACKBLAZE_APPLICATION_KEY_ID="your-application-key-id"
+   export BACKBLAZE_APPLICATION_KEY="your-application-key"
+   export BACKBLAZE_BUCKET_NAME="digital-ocean-images"
+   # Optional: Set a different endpoint if not using US West region
+   # export BACKBLAZE_ENDPOINT="s3.us-west-002.backblazeb2.com"
    ```
+
+3. Create a Backblaze B2 bucket named "digital-ocean-images" (or adjust the environment variable)
 
 ## Workflow
 
@@ -27,28 +33,15 @@ This configuration provides tools for building and deploying NixOS images to Dig
    do-build-nixos-image
    ```
 
-2. Upload to Spaces:
+2. Upload to Backblaze B2:
    ```bash
    do-upload-nix-image
    ```
-   Follow the prompts to enter your bucket name.
 
 3. Enable in DigitalOcean:
    ```bash
-   do-enable-nix-image "https://your-bucket.nyc3.digitaloceanspaces.com/nixos-digitalocean.img.tar.gz"
+   do-enable-nix-image "https://digital-ocean-images.s3.us-west-002.backblazeb2.com/nixos-digitalocean.img.tar.gz"
    ```
-
-## Terraform Configuration
-
-Terraform files for creating a Spaces bucket are available in:
-~/.config/digitalocean/terraform/
-
-To use:
-```bash
-cd ~/.config/digitalocean/terraform
-terraform init
-terraform apply
-```
 
 ## Notes
 
@@ -57,3 +50,4 @@ terraform apply
 - Basic system packages (vim, htop, git) are included
 - Nix flakes are enabled
 - Timezone is set to UTC
+- Images are uploaded to Backblaze B2 using their S3-compatible API
