@@ -8,10 +8,4 @@ in {
     ./opencode.nix
     ./pi.nix
   ];
-
-  # Shared .agents directory (convenience)
-  home.file = lib.mkIf agentsEnabled {
-    ".agents/AGENTS.md".source = ./AGENTS.global.md;
-    ".agents/skills".source = ./skills;
-  };
 }
