@@ -31,5 +31,8 @@
     };
   };
 
-  
+  home.file = lib.mkIf features.agents.opencode {
+    ".config/opencode/AGENTS.md".source = ./AGENTS.global.md;
+    ".config/opencode/skills".source = ./skills;
+  };
 }
