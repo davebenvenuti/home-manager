@@ -59,6 +59,5 @@ let
    home.file.".pi/agent/settings.json".source = ./pi/settings.json;
    home.file.".pi/agent/models.json".source = ./pi/models.json;
    home.file.".pi/agent/AGENTS.md".source = ./AGENTS.global.md;
-   home.file.".pi/agent/APPEND_SYSTEM.md".source = ./AGENTS.global.md;
    home.file.".pi/agent/skills".source = ./skills;
  }
