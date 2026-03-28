@@ -2,17 +2,17 @@
 let
   pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
     pname = "pi-coding-agent";
-    version = "0.60.0";
+    version = "0.63.1";
     nodejs = pkgs.nodejs_22;
 
     src = pkgs.fetchFromGitHub {
       owner = "badlogic";
       repo = "pi-mono";
       rev = "v${finalAttrs.version}";
-      hash = "sha256-CRXPLsJm2JFYO/V+sfD+lfht0AOSyNuHMz527W1Iwu4=";
+      hash = "sha256-Cb0I2iHIsH0ffk/yuzuwTZjd4VUZ7WjgdUuv2yKTMg8=";
     };
 
-    npmDepsHash = "sha256-f1x4EDS/uDK4dRlARm3jmMExCTC7rUtB08RSewhUpnk=";
+    npmDepsHash = "sha256-GrMNTZyg9K0kGJoKSyWd37PfOFbds630PNzrwDbXE4E=";
 
     npmWorkspace = "packages/coding-agent";
     npmFlags = [ "--legacy-peer-deps" ];
