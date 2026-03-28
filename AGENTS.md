@@ -14,7 +14,6 @@ The configuration is customizable via feature flags defined in `flake.nix`. Thes
 
 - `bitwarden-cli`: Bitwarden CLI tool for password management
 - `zshrc-private-sync`: Private zshrc synchronization to a Bitwarden encrypted note
-- `aider`: AI-powered coding assistant
 - `ghostty`: Terminal emulator (enabled on macOS by default)
 - `direnv`: Environment variable management tool
 - `ruby`: Ruby 3.4 programming language

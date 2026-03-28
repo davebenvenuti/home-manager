@@ -49,7 +49,6 @@
       defaultFeatures = {
         bitwarden-cli = true;
         zshrc-private-sync = true;
-        aider = true;
         ghostty = false;
         direnv = true;
         ruby = false;

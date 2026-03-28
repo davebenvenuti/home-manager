@@ -109,7 +109,6 @@ in
     ./programs/emacs.nix
 
     ./features/zshrc-private-sync.nix
-    ./features/aider.nix
     ./features/ghostty.nix
     ./features/agents/default.nix
     ./features/direnv.nix
