@@ -51,6 +51,7 @@
         zshrc-private-sync = true;
         ghostty = false;
         direnv = true;
+        git-hooks = false;
         ruby = false;
         monitoring = true;
         agents = {
@@ -65,10 +66,12 @@
         "dave@shithouse" = mkHomeConfig "x86_64-linux" "/home/dave" (nixpkgs.lib.recursiveUpdate defaultFeatures {
           ruby = true;
           agents.pi = true;
+          git-hooks = true;
         });
         "dave@air" = mkHomeConfig "aarch64-darwin" "/Users/dave" (nixpkgs.lib.recursiveUpdate defaultFeatures {
           ghostty = true;
           ruby = true;
+          git-hooks = true;
         });
       };
     };

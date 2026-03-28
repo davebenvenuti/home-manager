@@ -94,7 +94,6 @@ in
   #
   home.sessionVariables = {
     EDITOR = "nano -w";
-    GIT_EDITOR = "nano -w";
     RCLONE_FAST_LIST = "true";
   };
 
@@ -111,10 +110,11 @@ in
     ./features/zshrc-private-sync.nix
     ./features/ghostty.nix
     ./features/agents/default.nix
+    ./features/git.nix
     ./features/direnv.nix
     ./features/ruby.nix
     ./features/monitoring.nix
-    
+
   ];
 
   # Activation scripts run after configuration is applied

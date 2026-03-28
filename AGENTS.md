@@ -16,6 +16,7 @@ The configuration is customizable via feature flags defined in `flake.nix`. Thes
 - `zshrc-private-sync`: Private zshrc synchronization to a Bitwarden encrypted note
 - `ghostty`: Terminal emulator (enabled on macOS by default)
 - `direnv`: Environment variable management tool
+- `git-hooks`: Global git hooks for documentation reminders
 - `ruby`: Ruby 3.4 programming language
 - `monitoring`: System monitoring tools
 - `agents`: AI agent configurations (nested):

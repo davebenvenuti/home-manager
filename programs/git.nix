@@ -5,11 +5,6 @@
     enable = true;
     package = pkgs.git;
 
-    # Include private gitconfig - using relative path to match your gitconfig
-    includes = [
-      { path = ".gitconfig-private"; }
-    ];
-
     # All configuration using the new settings attribute
     settings = {
       apply = {
@@ -29,6 +24,9 @@
       };
       core = {
         excludesFile = "~/.gitignore";
+      };
+      include = {
+        path = "~/.config/git/config.private";
       };
       alias = {
         ci = "commit";
@@ -61,4 +59,8 @@
     # Tig - text-mode interface for Git
     tig
   ];
+
+  home.sessionVariables = {
+    GIT_EDITOR = "nano -w";
+  };
 }
