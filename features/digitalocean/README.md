@@ -43,6 +43,18 @@ This configuration provides tools for building and deploying NixOS images to Dig
    do-enable-nix-image "https://digital-ocean-images.s3.us-west-002.backblazeb2.com/nixos-digitalocean.img.tar.gz"
    ```
 
+## Troubleshooting
+
+### Build Errors
+
+If you encounter build errors about conflicting `systemd.services.digitalocean-metadata` definitions:
+- The script has been updated to avoid defining services that conflict with the built-in `digital-ocean-config.nix` module
+- The module is automatically included when building DigitalOcean images and provides proper metadata fetching with retry logic
+
+### Image Format
+
+Recent versions of nixos-generators produce `.qcow2.gz` files instead of `.img.tar.gz`. The script automatically handles this by renaming the file for compatibility with the upload process.
+
 ## Notes
 
 - The image is built with SSH enabled (key-based authentication only)

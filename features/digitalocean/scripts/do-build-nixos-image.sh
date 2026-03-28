@@ -56,16 +56,21 @@ cat > "$BUILD_DIR/flake.nix" << 'EOF'
           networking.firewall.enable = true;
           networking.firewall.allowedTCPPorts = [ 22 80 443 ];
           
-          # DigitalOcean-specific configuration
-          systemd.services.digitalocean-metadata = {
-            description = "Fetch DigitalOcean metadata";
-            wantedBy = [ "multi-user.target" ];
-            after = [ "network-online.target" ];
-            serviceConfig = {
-              Type = "oneshot";
-              ExecStart = "${pkgs.curl}/bin/curl -s http://169.254.169.254/metadata/v1.json -o /etc/digitalocean-metadata.json";
-              RemainAfterExit = true;
-            };
+          # Set system state version to avoid warning
+          system.stateVersion = "26.05";
+          
+          # DigitalOcean configuration
+          # The digital-ocean-config.nix module is automatically included
+          # when building DigitalOcean images and provides:
+          # - digitalocean-metadata service (fetches metadata with retry logic)
+          # - digitalocean-ssh-keys service (fetches SSH keys from metadata)
+          # - automatic root password setting from metadata (if enabled)
+          # - hostname configuration from metadata
+          # - entropy seeding from vendor data
+          virtualisation.digitalOcean = {
+            setRootPassword = false;  # We use SSH keys only
+            setSshKeys = true;        # Allow DigitalOcean to inject SSH keys
+            seedEntropy = true;       # Seed RNG from vendor data
           };
         })
       ];
@@ -81,16 +86,26 @@ cd "$BUILD_DIR"
 nix build .#digitalocean-image
 
 # Copy the result to current directory
-IMAGE_PATH="$(readlink -f result/nixos.img.tar.gz)"
-if [ -f "$IMAGE_PATH" ]; then
+# Check for the actual image file (name may vary)
+if [ -f "result/nixos.img.tar.gz" ]; then
+  IMAGE_PATH="$(readlink -f result/nixos.img.tar.gz)"
   cp "$IMAGE_PATH" ./nixos-digitalocean.img.tar.gz
   echo ""
   echo "✅ Image built successfully!"
   echo "Image saved to: $(pwd)/nixos-digitalocean.img.tar.gz"
   echo "Size: $(du -h nixos-digitalocean.img.tar.gz | cut -f1)"
+elif ls result/*.qcow2.gz 1> /dev/null 2>&1; then
+  # Newer versions produce .qcow2.gz files
+  IMAGE_PATH="$(readlink -f result/*.qcow2.gz)"
+  cp "$IMAGE_PATH" ./nixos-digitalocean.img.tar.gz
+  echo ""
+  echo "✅ Image built successfully! (QCow2 format)"
+  echo "Image saved to: $(pwd)/nixos-digitalocean.img.tar.gz"
+  echo "Size: $(du -h nixos-digitalocean.img.tar.gz | cut -f1)"
+  echo "Note: File has .qcow2.gz extension but renamed to .img.tar.gz for compatibility"
 else
   echo "❌ Error: Image not found at expected location"
-  echo "Expected: $IMAGE_PATH"
+  echo "Checked: result/nixos.img.tar.gz and result/*.qcow2.gz"
   ls -la result/
   exit 1
 fi
