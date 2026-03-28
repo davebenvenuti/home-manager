@@ -1,6 +1,9 @@
 echo "=== Building NixOS image for DigitalOcean ==="
 echo ""
 
+# Save the original directory
+ORIGINAL_DIR="$(pwd)"
+
 # Create a temporary directory for the build
 BUILD_DIR="$(mktemp -d)"
 echo "Building in temporary directory: $BUILD_DIR"
@@ -85,23 +88,23 @@ cd "$BUILD_DIR"
 # Build the image
 nix build .#digitalocean-image
 
-# Copy the result to current directory
+# Copy the result to original directory
 # Check for the actual image file (name may vary)
 if [ -f "result/nixos.img.tar.gz" ]; then
   IMAGE_PATH="$(readlink -f result/nixos.img.tar.gz)"
-  cp "$IMAGE_PATH" ./nixos-digitalocean.img.tar.gz
+  cp "$IMAGE_PATH" "$ORIGINAL_DIR/nixos-digitalocean.img.tar.gz"
   echo ""
   echo "✅ Image built successfully!"
-  echo "Image saved to: $(pwd)/nixos-digitalocean.img.tar.gz"
-  echo "Size: $(du -h nixos-digitalocean.img.tar.gz | cut -f1)"
+  echo "Image saved to: $ORIGINAL_DIR/nixos-digitalocean.img.tar.gz"
+  echo "Size: $(du -h "$ORIGINAL_DIR/nixos-digitalocean.img.tar.gz" | cut -f1)"
 elif ls result/*.qcow2.gz 1> /dev/null 2>&1; then
   # Newer versions produce .qcow2.gz files
   IMAGE_PATH="$(readlink -f result/*.qcow2.gz)"
-  cp "$IMAGE_PATH" ./nixos-digitalocean.img.tar.gz
+  cp "$IMAGE_PATH" "$ORIGINAL_DIR/nixos-digitalocean.img.tar.gz"
   echo ""
   echo "✅ Image built successfully! (QCow2 format)"
-  echo "Image saved to: $(pwd)/nixos-digitalocean.img.tar.gz"
-  echo "Size: $(du -h nixos-digitalocean.img.tar.gz | cut -f1)"
+  echo "Image saved to: $ORIGINAL_DIR/nixos-digitalocean.img.tar.gz"
+  echo "Size: $(du -h "$ORIGINAL_DIR/nixos-digitalocean.img.tar.gz" | cut -f1)"
   echo "Note: File has .qcow2.gz extension but renamed to .img.tar.gz for compatibility"
 else
   echo "❌ Error: Image not found at expected location"
@@ -111,4 +114,5 @@ else
 fi
 
 # Clean up
+cd "$ORIGINAL_DIR"
 rm -rf "$BUILD_DIR"
