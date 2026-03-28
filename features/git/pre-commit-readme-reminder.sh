@@ -2,14 +2,12 @@
 # Global git pre-commit hook for README documentation reminders
 # Managed by Home Manager Nix configuration
 
-set -euo pipefail
+# Only run if LLM environment variable is set to "true"
+if [ "${LLM:-}" != "true" ]; then
+    exit 0
+fi
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+set -euo pipefail
 
 # Configuration
 SKIP_PATTERNS=(
@@ -69,7 +67,7 @@ for file in "${FILTERED_FILES[@]}"; do
         # Configuration files
         *.json|*.yaml|*.yml|*.toml|*.ini|*.cfg|*.conf|*.env*)
             NEEDS_README_CHECK=true
-            README_REMINDER+="${YELLOW}•${NC} Configuration: ${BLUE}$file${NC}\n"
+            README_REMINDER+="• Configuration: $file\n"
             ;;
         
         # Source code files (major changes)
@@ -77,26 +75,26 @@ for file in "${FILTERED_FILES[@]}"; do
             # Check if it's a significant source file (not just a test)
             if [[ ! "$file" =~ \.(test|spec)\. ]]; then
                 NEEDS_README_CHECK=true
-                README_REMINDER+="${YELLOW}•${NC} Source code: ${BLUE}$file${NC}\n"
+                README_REMINDER+="• Source code: $file\n"
             fi
             ;;
         
         # Script/automation files
         *.sh|*.bash|*.zsh|Makefile|Dockerfile|docker-compose*.yml|*.rake)
             NEEDS_README_CHECK=true
-            README_REMINDER+="${YELLOW}•${NC} Script/automation: ${BLUE}$file${NC}\n"
+            README_REMINDER+="• Script/automation: $file\n"
             ;;
         
         # Package/dependency files
         package.json|requirements.txt|Pipfile|pyproject.toml|Cargo.toml|go.mod|Gemfile|composer.json)
             NEEDS_README_CHECK=true
-            README_REMINDER+="${YELLOW}•${NC} Dependencies: ${BLUE}$file${NC}\n"
+            README_REMINDER+="• Dependencies: $file\n"
             ;;
         
         # Project structure files
         .gitignore|.editorconfig|.pre-commit-config.yaml|flake.nix|shell.nix)
             NEEDS_README_CHECK=true
-            README_REMINDER+="${YELLOW}•${NC} Project setup: ${BLUE}$file${NC}\n"
+            README_REMINDER+="• Project setup: $file\n"
             ;;
     esac
 done
@@ -104,14 +102,14 @@ done
 # If README check is needed, provide guidance
 if [ "$NEEDS_README_CHECK" = true ]; then
     echo ""
-    echo "${GREEN}📝 README Documentation Reminder${NC}"
-    echo "${GREEN}===============================${NC}"
+    echo "📝 README Documentation Reminder"
+    echo "==============================="
     echo ""
     echo "The following changes might require README updates:"
     echo ""
     echo -e "$README_REMINDER"
     echo ""
-    echo "${YELLOW}Consider updating README.md to reflect:${NC}"
+    echo "Consider updating README.md to reflect:"
     echo "  • New features or functionality"
     echo "  • Changed configuration options"
     echo "  • Updated dependencies or requirements"
@@ -129,7 +127,7 @@ if [ "$NEEDS_README_CHECK" = true ]; then
     done
     
     if [ ${#README_FILES[@]} -gt 0 ]; then
-        echo "${GREEN}✅ README file(s) found:${NC} ${README_FILES[*]}"
+        echo "✅ README file(s) found: ${README_FILES[*]}"
         echo ""
         
         # Generate LLM prompt context
@@ -155,19 +153,19 @@ Focus on:
 Provide specific suggestions for README updates.
 EOF
             
-            echo "${BLUE}📋 LLM-ready prompt saved to:${NC} $PROMPT_FILE"
+            echo "📋 LLM-ready prompt saved to: $PROMPT_FILE"
             
             # Try to copy to clipboard if available
             if command -v xclip >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
                 cat "$PROMPT_FILE" | xclip -selection clipboard
-                echo "${BLUE}📋 Prompt copied to clipboard (xclip)${NC}"
+                echo "📋 Prompt copied to clipboard (xclip)"
             elif command -v pbcopy >/dev/null 2>&1; then
                 cat "$PROMPT_FILE" | pbcopy
-                echo "${BLUE}📋 Prompt copied to clipboard (pbcopy)${NC}"
+                echo "📋 Prompt copied to clipboard (pbcopy)"
             fi
         fi
     else
-        echo "${YELLOW}⚠️  No README file found. Consider creating one with:${NC}"
+        echo "⚠️  No README file found. Consider creating one with:"
         echo "   • Project description"
         echo "   • Installation instructions"
         echo "   • Usage examples"
@@ -176,7 +174,7 @@ EOF
         echo ""
     fi
     
-    echo "${YELLOW}To skip this check (not recommended):${NC}"
+    echo "To skip this check (not recommended):"
     echo "  git commit --no-verify"
     echo ""
     
@@ -185,12 +183,12 @@ EOF
         read -p "Continue with commit? (y/N): " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "${RED}Commit cancelled. Please update documentation first.${NC}"
+            echo "Commit cancelled. Please update documentation first."
             exit 1
         fi
     else
-        echo "${GREEN}You may proceed with the commit.${NC}"
-        echo "${YELLOW}Remember to update documentation when appropriate.${NC}"
+        echo "You may proceed with the commit."
+        echo "Remember to update documentation when appropriate."
         echo ""
     fi
 fi
