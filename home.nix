@@ -114,6 +114,7 @@ in
     ./features/direnv.nix
     ./features/ruby.nix
     ./features/monitoring.nix
+    ./features/digitalocean.nix
 
   ];
 

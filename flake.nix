@@ -54,6 +54,7 @@
         git-hooks = false;
         ruby = false;
         monitoring = true;
+        digitalocean = false;
         agents = {
           opencode = true;
           pi = false;
@@ -67,6 +68,7 @@
           ruby = true;
           agents.pi = true;
           git-hooks = true;
+          digitalocean = true;
         });
         "dave@air" = mkHomeConfig "aarch64-darwin" "/Users/dave" (nixpkgs.lib.recursiveUpdate defaultFeatures {
           ghostty = true;
