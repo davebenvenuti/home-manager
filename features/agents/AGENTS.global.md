@@ -19,6 +19,7 @@ This file provides general guidance and preferences for AI-assisted development 
 ### Source Control
 - **Always prompt before committing** - Ask the user whether to commit changes to source control. Some users prefer committing themselves, others want the LLM to handle it.
 - **Work from feature branches** - If currently on the `main` or `master` branch, suggest creating and switching to a feature branch before making changes. Example: `git checkout -b feature/description-of-changes`
+- **Use LLM environment variable** - When performing any git operation, set the environment variable `LLM=true` to indicate the operation is being performed by an LLM. Example: `LLM=true git commit -m "feat: add feature description"`
 
 ### Nix/NixOS Development
 - **Use flakes when possible** - Prefer `flake.nix` over `shell.nix` for new projects
@@ -79,19 +80,19 @@ npm init -y
 current_branch=$(git branch --show-current)
 if [[ "$current_branch" == "main" || "$current_branch" == "master" ]]; then
     echo "Currently on $current_branch branch. Creating feature branch..."
-    git checkout -b feature/description-of-changes
+    LLM=true git checkout -b feature/description-of-changes
 fi
 
 # Create feature branch (if not already on one)
-git checkout -b feature/description
+LLM=true git checkout -b feature/description
 
 # Commit with meaningful messages (prompt user first)
 # Ask: "Should I commit these changes? If so, what commit message would you like?"
-git add .
-git commit -m "feat: add feature description"
+LLM=true git add .
+LLM=true git commit -m "feat: add feature description"
 
 # Keep commits focused
-git add -p  # Review changes interactively
+LLM=true git add -p  # Review changes interactively
 ```
 
 ## Quality Standards
