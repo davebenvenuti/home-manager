@@ -28,6 +28,8 @@ This configuration provides tools for building and deploying NixOS images to Dig
 
 ## Workflow
 
+### Option 1: Step-by-step (explicit control)
+
 1. Build the image:
    ```bash
    do-build-nixos-image
@@ -38,10 +40,27 @@ This configuration provides tools for building and deploying NixOS images to Dig
    do-upload-nix-image
    ```
 
-3. Enable in DigitalOcean:
+3. Enable in DigitalOcean (using the URL from step 2):
    ```bash
    do-enable-nix-image "https://digital-ocean-images.s3.us-west-002.backblazeb2.com/nixos-digitalocean.img.tar.gz"
    ```
+
+### Option 2: Combined upload and enable (recommended)
+
+1. Build the image:
+   ```bash
+   do-build-nixos-image
+   ```
+
+2. Upload and enable in one step:
+   ```bash
+   do-enable-nix-image
+   ```
+   
+   This will:
+   - Upload the local `nixos-digitalocean.img.tar.gz` to Backblaze B2
+   - Create a DigitalOcean image from the uploaded URL
+   - Use the same Backblaze B2 credentials as `do-upload-nix-image`
 
 ## Troubleshooting
 
