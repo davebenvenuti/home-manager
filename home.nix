@@ -100,7 +100,7 @@ in
   # Import program configurations from separate modules
   imports = [
     ./programs/git.nix
-    ./programs/tmux.nix
+    ./features/tmux.nix
     ./programs/zsh.nix
     ./programs/eza.nix
     ./programs/bat.nix

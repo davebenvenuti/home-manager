@@ -11,4 +11,16 @@
 
     extraConfig = builtins.readFile ./tmux.extra.conf;
   };
+
+  programs.fzf = {
+    enable = true;
+    tmux.enableShellIntegration = true;
+  };
+
+  programs.sesh = {
+    enable = true;
+    enableTmuxIntegration = true;
+    tmuxKey = "s";
+    icons = true;
+  };
 }
