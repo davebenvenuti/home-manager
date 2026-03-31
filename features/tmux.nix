@@ -21,7 +21,7 @@
     enable = true;
     enableAlias = true; # "s"
     enableTmuxIntegration = true;
-    tmuxKey = "s";
+    tmuxKey = "S";
     icons = true;
   };
 }
