@@ -19,8 +19,13 @@
 
   programs.sesh = {
     enable = true;
+
     enableTmuxIntegration = true;
     tmuxKey = "s";
     icons = true;
+
+    settings = {
+      icons = true;
+    };
   };
 }
