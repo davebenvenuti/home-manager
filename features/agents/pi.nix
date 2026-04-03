@@ -51,13 +51,30 @@ let
       platforms = lib.platforms.linux;
     };
   });
- in lib.mkIf features.agents.pi {
-   home.packages = [
-     pi-coding-agent
-   ];
+ in lib.mkMerge [
+   # Extensions deployed for any system with pi (even if pi is installed externally)
+   {
+     home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
 
-   home.file.".pi/agent/settings.json".source = ./pi/settings.json;
-   home.file.".pi/agent/models.json".source = ./pi/models.json;
-   home.file.".pi/agent/AGENTS.md".source = ./AGENTS.global.md;
-   home.file.".pi/agent/skills".source = ./skills;
- }
+     # Ensure settings.json includes our custom extensions path
+     home.activation.piCustomExtensions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+       SETTINGS_FILE="$HOME/.pi/agent/settings.json"
+       if [ -f "$SETTINGS_FILE" ]; then
+         ${pkgs.jq}/bin/jq '.extensions = (.extensions // []) + ["~/.pi/custom-extensions/notify.ts"] | .extensions |= unique' \
+           "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+       fi
+     '';
+   }
+
+   # Full pi installation from source (Linux only)
+   (lib.mkIf features.agents.pi {
+     home.packages = [
+       pi-coding-agent
+     ];
+
+     home.file.".pi/agent/settings.json".source = ./pi/settings.json;
+     home.file.".pi/agent/models.json".source = ./pi/models.json;
+     home.file.".pi/agent/AGENTS.md".source = ./AGENTS.global.md;
+     home.file.".pi/agent/skills".source = ./skills;
+   })
+ ]
