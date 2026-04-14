@@ -20,6 +20,7 @@ This file provides general guidance and preferences for AI-assisted development 
 - **Always prompt before committing** - Ask the user whether to commit changes to source control. Some users prefer committing themselves, others want the LLM to handle it.
 - **Work from feature branches** - If currently on the `main` or `master` branch, suggest creating and switching to a feature branch before making changes. Example: `git checkout -b feature/description-of-changes`
 - **Use LLM environment variable** - When performing any git operation, set the environment variable `LLM=true` to indicate the operation is being performed by an LLM. Example: `LLM=true git commit -m "feat: add feature description"`
+- **Pay attention to git commit output** - When running `git commit`, carefully read any output that appears before the commit completes. This may include important instructions from pre-commit hooks specifically intended for LLMs, such as documentation reminders or other guidance.
 
 ### Nix/NixOS Development
 - **Use flakes when possible** - Prefer `flake.nix` over `shell.nix` for new projects

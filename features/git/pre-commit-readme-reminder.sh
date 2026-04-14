@@ -102,8 +102,11 @@ done
 # If README check is needed, provide guidance
 if [ "$NEEDS_README_CHECK" = true ]; then
     echo ""
-    echo "📝 README Documentation Reminder"
-    echo "==============================="
+    echo "================================================================================"
+    echo "🤖 LLM INSTRUCTIONS: README Documentation Reminder"
+    echo "================================================================================"
+    echo ""
+    echo "This message is specifically for LLMs/agents. Please read carefully."
     echo ""
     echo "The following changes might require README updates:"
     echo ""
@@ -127,7 +130,7 @@ if [ "$NEEDS_README_CHECK" = true ]; then
     done
     
     if [ ${#README_FILES[@]} -gt 0 ]; then
-        echo "✅ README file(s) found: ${README_FILES[*]}"
+        echo "README file(s) found: ${README_FILES[*]}"
         echo ""
         
         # Generate LLM prompt context
@@ -153,19 +156,19 @@ Focus on:
 Provide specific suggestions for README updates.
 EOF
             
-            echo "📋 LLM-ready prompt saved to: $PROMPT_FILE"
+            echo "LLM-ready prompt saved to: $PROMPT_FILE"
             
             # Try to copy to clipboard if available
             if command -v xclip >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
                 cat "$PROMPT_FILE" | xclip -selection clipboard
-                echo "📋 Prompt copied to clipboard (xclip)"
+                echo "Prompt copied to clipboard (xclip)"
             elif command -v pbcopy >/dev/null 2>&1; then
                 cat "$PROMPT_FILE" | pbcopy
-                echo "📋 Prompt copied to clipboard (pbcopy)"
+                echo "Prompt copied to clipboard (pbcopy)"
             fi
         fi
     else
-        echo "⚠️  No README file found. Consider creating one with:"
+        echo "No README file found. Consider creating one with:"
         echo "   • Project description"
         echo "   • Installation instructions"
         echo "   • Usage examples"
