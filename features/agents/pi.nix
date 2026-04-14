@@ -2,17 +2,17 @@
 let
   pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
     pname = "pi-coding-agent";
-    version = "0.63.1";
+    version = "0.67.1";
     nodejs = pkgs.nodejs_22;
 
     src = pkgs.fetchFromGitHub {
       owner = "badlogic";
       repo = "pi-mono";
       rev = "v${finalAttrs.version}";
-      hash = "sha256-Cb0I2iHIsH0ffk/yuzuwTZjd4VUZ7WjgdUuv2yKTMg8=";
+      hash = "sha256-Hh4nRMxtlzRHDgr8P6Pm7FDzV2f+6MIxNmVMKtnwb8I=";
     };
 
-    npmDepsHash = "sha256-GrMNTZyg9K0kGJoKSyWd37PfOFbds630PNzrwDbXE4E=";
+    npmDepsHash = "sha256-t1M9qED2BeJGDgbC1ZHsiTT5NMXmtEr+rsu2kKM0MLg=";
 
     npmWorkspace = "packages/coding-agent";
     npmFlags = [ "--legacy-peer-deps" ];
@@ -56,12 +56,31 @@ let
    {
      home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
 
-     # Ensure settings.json includes our custom extensions path
-     home.activation.piCustomExtensions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+     # Merge our settings with existing settings.json
+     home.activation.piSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
        SETTINGS_FILE="$HOME/.pi/agent/settings.json"
+       OUR_SETTINGS="${./pi/settings.json}"
+       
+       # Create directory if it doesn't exist
+       mkdir -p "$(dirname "$SETTINGS_FILE")"
+       
        if [ -f "$SETTINGS_FILE" ]; then
-         ${pkgs.jq}/bin/jq '.extensions = (.extensions // []) + ["~/.pi/custom-extensions/notify.ts"] | .extensions |= unique' \
-           "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+         # First, ensure our custom extension is in the extensions array
+         # Then merge other settings with ours taking precedence
+         ${pkgs.jq}/bin/jq -s '
+           .[0] as $our |
+           .[1] as $existing |
+           # Remove lastChangelogVersion if present
+           ($existing | del(.lastChangelogVersion)) as $cleanExisting |
+           # Merge extensions arrays
+           ($cleanExisting.extensions // []) as $existingExt |
+           ($our.extensions // []) as $ourExt |
+           $cleanExisting * $our |
+           .extensions = (($existingExt + $ourExt) | unique)
+         ' "$OUR_SETTINGS" "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+       else
+         # No existing file, just copy our settings
+         cp "$OUR_SETTINGS" "$SETTINGS_FILE"
        fi
      '';
    }
@@ -77,7 +96,6 @@ let
        PI_SKIP_VERSION_CHECK = "1";
      };
 
-     home.file.".pi/agent/settings.json".source = ./pi/settings.json;
      home.file.".pi/agent/models.json".source = ./pi/models.json;
      
      home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
