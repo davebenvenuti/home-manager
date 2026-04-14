@@ -2,6 +2,16 @@
 
 let
   agentsEnabled = features.agents.opencode || features.agents.pi;
+  
+  # Get all skill files
+  skillFiles = builtins.attrNames (builtins.readDir ./skills);
+  
+  # Create home.file declarations for each skill
+  skillFileDeclarations = lib.flatten (builtins.map (skillFile: [
+    {
+      ".agents/skills/${skillFile}".source = ./skills/${skillFile};
+    }
+  ]) skillFiles);
 in {
   # Import agent-specific configurations (they have internal feature guards)
   imports = [
@@ -9,21 +19,10 @@ in {
     ./pi.nix
   ];
 
-  # Create shared agents directory and symlinks when any agent is enabled
-  home.activation = lib.mkIf agentsEnabled {
-    createAgentsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      mkdir -p "$HOME/.agents"
-      mkdir -p "$HOME/.agents/skills"
-      
-      # Copy AGENTS.global.md to shared directory
-      cp -f "${./AGENTS.global.md}" "$HOME/.agents/AGENTS.md"
-      
-      # Copy all skills to shared directory
-      for skill in "${./skills}/"*; do
-        if [ -f "$skill" ]; then
-          cp -f "$skill" "$HOME/.agents/skills/"
-        fi
-      done
-    '';
-  };
+  # Create shared agents directory and files when any agent is enabled
+  home.file = lib.mkIf agentsEnabled (lib.mkMerge ([
+    {
+      ".agents/AGENTS.md".source = ./AGENTS.global.md;
+    }
+  ] ++ skillFileDeclarations));
 }

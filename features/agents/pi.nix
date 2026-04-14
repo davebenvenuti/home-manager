@@ -1,4 +1,4 @@
-{ lib, features, pkgs, ... }:
+{ lib, features, pkgs, config, ... }:
 let
   pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
     pname = "pi-coding-agent";
@@ -80,11 +80,7 @@ let
      home.file.".pi/agent/settings.json".source = ./pi/settings.json;
      home.file.".pi/agent/models.json".source = ./pi/models.json;
      
-     home.activation.setupPiSymlinks = lib.hm.dag.entryAfter [ "createAgentsDir" ] ''
-       # Create symlinks from pi directories to shared agents directory
-       mkdir -p "$HOME/.pi/agent"
-       ln -sf "$HOME/.agents/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
-       ln -sf "$HOME/.agents/skills" "$HOME/.pi/agent/skills"
-     '';
+     home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
+     home.file.".pi/agent/skills".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
    })
  ]

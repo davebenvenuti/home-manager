@@ -1,4 +1,4 @@
-{ lib, features, pkgs, ... }:
+{ lib, features, pkgs, config, ... }:
 {
   programs.opencode = lib.mkIf features.agents.opencode {
     enable = true;
@@ -31,12 +31,8 @@
     };
   };
 
-  home.activation = lib.mkIf features.agents.opencode {
-    setupOpencodeSymlinks = lib.hm.dag.entryAfter [ "createAgentsDir" ] ''
-      # Create symlinks from opencode directories to shared agents directory
-      mkdir -p "$HOME/.config/opencode"
-      ln -sf "$HOME/.agents/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
-      ln -sf "$HOME/.agents/skills" "$HOME/.config/opencode/skills"
-    '';
+  home.file = lib.mkIf features.agents.opencode {
+    ".config/opencode/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
+    ".config/opencode/skills".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
   };
 }
