@@ -1,5 +1,7 @@
 # Home Manager Configuration Management
 
+**Description**: Instructions for managing and applying changes to this specific home-manager configuration, including feature flags, development workflow, and troubleshooting.
+
 This skill provides guidance for working with this specific home-manager configuration project.
 
 ## Project Location

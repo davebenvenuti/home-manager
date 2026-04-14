@@ -12,7 +12,10 @@ features/agents/
 ├── AGENTS.md            # This file - explains the agents feature
 ├── AGENTS.global.md     # Global instructions for LLMs on other projects
 ├── skills/              # Shared skill files
-│   └── rails-nix-development.md
+│   ├── README.md        # Skills index with descriptions
+│   ├── rails-nix-development.md
+│   ├── home-manager-configuration.md
+│   └── shell-command-logging.md
 ├── opencode.nix         # opencode-specific configuration
 ├── opencode/            # Legacy opencode files
 ├── pi.nix               # pi-specific configuration
@@ -50,12 +53,13 @@ When enabled, the configuration creates:
 
 ## Adding Skills
 
-Skills go in `features/agents/skills/` and are automatically symlinked to all enabled agents.
+Skills go in `features/agents/skills/` and are automatically symlinked to all enabled agents. See [skills/README.md](skills/README.md) for a list of available skills.
 
 To add a skill:
 1. Create `features/agents/skills/[skill-name].md`
 2. Document purpose, commands, examples
-3. Run `home-manager switch` to deploy
+3. Update `skills/README.md` to include the new skill
+4. Run `home-manager switch` to deploy
 
 ## Configuration Updates
 

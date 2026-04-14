@@ -1,5 +1,7 @@
 # Shell Command Logging and Timeout Guidelines
 
+**Description**: Best practices for executing shell commands with proper timeout handling and logging to ensure reliable and debuggable command execution.
+
 ## Command Execution Best Practices
 
 When executing shell commands through AI agents, follow these guidelines:
