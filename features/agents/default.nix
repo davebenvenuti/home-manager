@@ -3,15 +3,22 @@
 let
   agentsEnabled = features.agents.opencode || features.agents.pi;
   
-  # Get all skill files
-  skillFiles = builtins.attrNames (builtins.readDir ./skills);
+  # Get all skill directories
+  skillEntries = builtins.attrNames (builtins.readDir ./skills);
   
-  # Create home.file declarations for each skill
-  skillFileDeclarations = lib.flatten (builtins.map (skillFile: [
+  # Filter to only directories (skills are now in directories)
+  skillDirs = builtins.filter (name: 
+    let path = (toString ./skills) + "/" + name;
+    type = builtins.readFileType path;
+    in type == "directory"
+  ) skillEntries;
+  
+  # Create home.file declarations for each skill directory
+  skillDirDeclarations = lib.flatten (builtins.map (skillDir: [
     {
-      ".agents/skills/${skillFile}".source = ./skills/${skillFile};
+      ".agents/skills/${skillDir}".source = ./skills/${skillDir};
     }
-  ]) skillFiles);
+  ]) skillDirs);
 in {
   # Import agent-specific configurations (they have internal feature guards)
   imports = [
@@ -24,5 +31,5 @@ in {
     {
       ".agents/AGENTS.md".source = ./AGENTS.global.md;
     }
-  ] ++ skillFileDeclarations));
+  ] ++ skillDirDeclarations));
 }

@@ -1,6 +1,9 @@
-# Rails Development with Nix
+---
+name: rails-nix-development
+description: Guides for developing Ruby on Rails applications using Nix for reproducible development environments. Includes project setup, dependency management, and database configuration patterns
+---
 
-**Description**: Guides for developing Ruby on Rails applications using Nix for reproducible development environments. Includes project setup, dependency management, and database configuration patterns.
+# Rails Development with Nix
 
 This skill covers Rails development workflows using Nix for environment management.
 

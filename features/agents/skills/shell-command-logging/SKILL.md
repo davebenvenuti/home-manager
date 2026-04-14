@@ -1,6 +1,9 @@
-# Shell Command Logging and Timeout Guidelines
+---
+name: shell-command-logging
+description: Best practices for executing shell commands with proper timeout handling and logging to ensure reliable and debuggable command execution
+---
 
-**Description**: Best practices for executing shell commands with proper timeout handling and logging to ensure reliable and debuggable command execution.
+# Shell Command Logging and Timeout Guidelines
 
 ## Command Execution Best Practices
 
