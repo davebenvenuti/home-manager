@@ -72,9 +72,19 @@ let
        pi-coding-agent
      ];
 
+     # Set environment variable to disable Pi version checks
+     home.sessionVariables = {
+       PI_SKIP_VERSION_CHECK = "1";
+     };
+
      home.file.".pi/agent/settings.json".source = ./pi/settings.json;
      home.file.".pi/agent/models.json".source = ./pi/models.json;
-     home.file.".pi/agent/AGENTS.md".source = ./AGENTS.global.md;
-     home.file.".pi/agent/skills".source = ./skills;
+     
+     home.activation.setupPiSymlinks = lib.hm.dag.entryAfter [ "createAgentsDir" ] ''
+       # Create symlinks from pi directories to shared agents directory
+       mkdir -p "$HOME/.pi/agent"
+       ln -sf "$HOME/.agents/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
+       ln -sf "$HOME/.agents/skills" "$HOME/.pi/agent/skills"
+     '';
    })
  ]

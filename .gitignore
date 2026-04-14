@@ -1,1 +1,2 @@
-# You can't ignore result/ because it's a symlink
+# Ignore nix build result symlink
+result

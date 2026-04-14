@@ -31,8 +31,12 @@
     };
   };
 
-  home.file = lib.mkIf features.agents.opencode {
-    ".config/opencode/AGENTS.md".source = ./AGENTS.global.md;
-    ".config/opencode/skills".source = ./skills;
+  home.activation = lib.mkIf features.agents.opencode {
+    setupOpencodeSymlinks = lib.hm.dag.entryAfter [ "createAgentsDir" ] ''
+      # Create symlinks from opencode directories to shared agents directory
+      mkdir -p "$HOME/.config/opencode"
+      ln -sf "$HOME/.agents/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
+      ln -sf "$HOME/.agents/skills" "$HOME/.config/opencode/skills"
+    '';
   };
 }
