@@ -51,36 +51,60 @@ let
       platforms = lib.platforms.linux;
     };
   });
+ # Nix-managed pi settings. These are merged into the existing settings.json
+ # on each home-manager switch, preserving any runtime changes pi has made
+ # to other fields (lastChangelogVersion, theme, compaction, etc.).
+ #
+ # For arrays (packages, extensions): nix-managed entries are added to the
+ # existing list (deduped), so runtime additions are preserved.
+ managedPiSettings = builtins.toJSON {
+   defaultProvider = "deepseek";
+   defaultModel = "deepseek-chat";
+   extensions = [
+     "~/.pi/custom-extensions/notify.ts"
+   ];
+   models = {
+     "deepseek-chat" = {
+       provider = "deepseek";
+       description = "DeepSeek V3 is a powerful language model designed for coding tasks, offering enhanced performance and accuracy.";
+     };
+     "qwen/qwen-2.5-code" = {
+       provider = "openrouter";
+       description = "Qwen 2.5 Code is a specialized language model optimized for code generation and understanding, providing high-quality outputs for programming tasks.";
+     };
+   };
+ };
  in lib.mkMerge [
    # Extensions deployed for any system with pi (even if pi is installed externally)
    {
      home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
 
-     # Merge our settings with existing settings.json
      home.activation.piSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+       mkdir -p $HOME/.pi/agent
+
        SETTINGS_FILE="$HOME/.pi/agent/settings.json"
-       OUR_SETTINGS="${./pi/settings.json}"
-       
-       # Create directory if it doesn't exist
-       mkdir -p "$(dirname "$SETTINGS_FILE")"
-       
-       if [ -f "$SETTINGS_FILE" ]; then
-         # First, ensure our custom extension is in the extensions array
-         # Then merge other settings with ours taking precedence
-         ${pkgs.jq}/bin/jq -s '
-           .[0] as $our |
-           .[1] as $existing |
-           # Remove lastChangelogVersion if present
-           ($existing | del(.lastChangelogVersion)) as $cleanExisting |
-           # Merge extensions arrays
-           ($cleanExisting.extensions // []) as $existingExt |
-           ($our.extensions // []) as $ourExt |
-           $cleanExisting * $our |
-           .extensions = (($existingExt + $ourExt) | unique)
-         ' "$OUR_SETTINGS" "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+       MANAGED='${managedPiSettings}'
+
+       if [ ! -f "$SETTINGS_FILE" ]; then
+         echo "$MANAGED" | ${pkgs.jq}/bin/jq '.' > "$SETTINGS_FILE"
        else
-         # No existing file, just copy our settings
-         cp "$OUR_SETTINGS" "$SETTINGS_FILE"
+         # Merge nix-managed settings into existing file:
+         # - Scalar/object fields are overwritten (managed wins)
+         # - Array fields (packages, extensions): union of existing + managed (preserves runtime additions)
+         # - lastChangelogVersion is stripped to avoid stale changelog dismissals
+         ${pkgs.jq}/bin/jq -s '
+           (.[0] | del(.lastChangelogVersion)) as $existing | .[1] as $managed |
+           ($existing.packages // []) as $existingPkgs |
+           ($managed.packages // []) as $managedPkgs |
+           ($existingPkgs + $managedPkgs | unique) as $mergedPkgs |
+           ($existing.extensions // []) as $existingExts |
+           ($managed.extensions // []) as $managedExts |
+           ($existingExts + $managedExts | unique) as $mergedExts |
+           $existing * ($managed | del(.packages, .extensions)) |
+           .packages = $mergedPkgs |
+           .extensions = $mergedExts
+         ' "$SETTINGS_FILE" <(echo "$MANAGED") > "$SETTINGS_FILE.tmp" \
+           && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
        fi
      '';
    }
