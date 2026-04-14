@@ -81,6 +81,6 @@ let
      home.file.".pi/agent/models.json".source = ./pi/models.json;
      
      home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
-     home.file.".pi/agent/skills".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
+     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
    })
  ]
