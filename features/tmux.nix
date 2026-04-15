@@ -20,8 +20,9 @@
   programs.sesh = {
     enable = true;
     enableAlias = true; # "s"
-    enableTmuxIntegration = true;
-    tmuxKey = "s";
+    # We disable the built-in tmux integration and define our own binding in
+    # tmux.extra.conf so we can default to tmux-only session list.
+    enableTmuxIntegration = false;
     icons = true;
   };
 }
