@@ -51,19 +51,33 @@ let
       platforms = lib.platforms.linux;
     };
   });
- in lib.mkMerge [
-   # Extensions deployed for any system with pi (even if pi is installed externally)
-   {
+ in
+   # Full pi installation from source (Linux only)
+   (lib.mkIf features.agents.pi {
+     home.packages = [
+       pi-coding-agent
+     ];
+
+     # Set environment variable to disable Pi version checks
+     home.sessionVariables = {
+       PI_SKIP_VERSION_CHECK = "1";
+     };
+
+     home.file.".pi/agent/models.json".source = ./pi/models.json;
+
+     home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
+     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
+
      home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
 
      # Merge our settings with existing settings.json
      home.activation.piSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
        SETTINGS_FILE="$HOME/.pi/agent/settings.json"
        OUR_SETTINGS="${./pi/settings.json}"
-       
+
        # Create directory if it doesn't exist
        mkdir -p "$(dirname "$SETTINGS_FILE")"
-       
+
        if [ -f "$SETTINGS_FILE" ]; then
          # First, ensure our custom extension is in the extensions array
          # Then merge other settings with ours taking precedence
@@ -83,22 +97,4 @@ let
          cp "$OUR_SETTINGS" "$SETTINGS_FILE"
        fi
      '';
-   }
-
-   # Full pi installation from source (Linux only)
-   (lib.mkIf features.agents.pi {
-     home.packages = [
-       pi-coding-agent
-     ];
-
-     # Set environment variable to disable Pi version checks
-     home.sessionVariables = {
-       PI_SKIP_VERSION_CHECK = "1";
-     };
-
-     home.file.".pi/agent/models.json".source = ./pi/models.json;
-     
-     home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
-     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
    })
- ]
