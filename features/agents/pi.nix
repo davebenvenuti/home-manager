@@ -51,50 +51,127 @@ let
       platforms = lib.platforms.linux;
     };
   });
- in
-   # Full pi installation from source (Linux only)
-   (lib.mkIf features.agents.pi {
-     home.packages = [
-       pi-coding-agent
-     ];
 
-     # Set environment variable to disable Pi version checks
-     home.sessionVariables = {
-       PI_SKIP_VERSION_CHECK = "1";
-     };
+  # Nix-managed pi settings. These are merged into the existing settings.json
+  # on each home-manager switch, preserving any runtime changes pi has made
+  # to other fields (lastChangelogVersion, theme, compaction, etc.).
+  #
+  # For arrays (packages, extensions): nix-managed entries are added to the
+  # existing list (deduped), so runtime additions are preserved.
+  managedPiSettings = builtins.toJSON {
+    defaultProvider = "deepseek";
+    defaultModel = "deepseek-chat";
+    extensions = [
+      "~/.pi/custom-extensions/notify.ts"
+    ];
+    models = {
+      "deepseek-chat" = {
+        provider = "deepseek";
+        description = "DeepSeek V3 is a powerful language model designed for coding tasks, offering enhanced performance and accuracy.";
+      };
+      "qwen/qwen-2.5-code" = {
+        provider = "openrouter";
+        description = "Qwen 2.5 Code is a specialized language model optimized for code generation and understanding, providing high-quality outputs for programming tasks.";
+      };
+    };
+  };
 
-     home.file.".pi/agent/models.json".source = ./pi/models.json;
+  # Nix-managed pi provider configurations. These are merged into the existing models.json
+  # on each home-manager switch, preserving any runtime changes pi has made.
+  managedModels = builtins.toJSON {
+    providers = {
+      deepseek = {
+        baseUrl = "https://api.deepseek.com/v1";
+        api = "openai-completions";
+        apiKey = "DEEPSEEK_API_KEY";
+        authHeader = true;
+        models = [
+          {
+            id = "deepseek-chat";
+            name = "DeepSeek V3";
+            reasoning = true;
+            contextWindow = 128000;  # Updated from 64k to 128k
+            maxTokens = 5000;
+            cost = {
+              input = 0.27;
+              output = 1.1;
+              cacheRead = 0.07;
+              cacheWrite = 1.1;
+            };
+          }
+        ];
+      };
+    };
+  };
+in lib.mkMerge [
+  # Extensions deployed for any system with pi (even if pi is installed externally)
+  {
+    home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
 
-     home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
-     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
+    home.activation.piSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      mkdir -p $HOME/.pi/agent
 
-     home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
+      # Merge settings.json
+      SETTINGS_FILE="$HOME/.pi/agent/settings.json"
+      MANAGED_SETTINGS='${managedPiSettings}'
 
-     # Merge our settings with existing settings.json
-     home.activation.piSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-       SETTINGS_FILE="$HOME/.pi/agent/settings.json"
-       OUR_SETTINGS="${./pi/settings.json}"
+      if [ ! -f "$SETTINGS_FILE" ]; then
+        echo "$MANAGED_SETTINGS" | ${pkgs.jq}/bin/jq '.' > "$SETTINGS_FILE"
+      else
+        # Merge nix-managed settings into existing file:
+        # - Scalar/object fields are overwritten (managed wins)
+        # - Array fields (packages, extensions): union of existing + managed (preserves runtime additions)
+        # - lastChangelogVersion is stripped to avoid stale changelog dismissals
+        ${pkgs.jq}/bin/jq -s '
+          (.[0] | del(.lastChangelogVersion)) as $existing | .[1] as $managed |
+          ($existing.packages // []) as $existingPkgs |
+          ($managed.packages // []) as $managedPkgs |
+          ($existingPkgs + $managedPkgs | unique) as $mergedPkgs |
+          ($existing.extensions // []) as $existingExts |
+          ($managed.extensions // []) as $managedExts |
+          ($existingExts + $managedExts | unique) as $mergedExts |
+          $existing * ($managed | del(.packages, .extensions)) |
+          .packages = $mergedPkgs |
+          .extensions = $mergedExts
+        ' "$SETTINGS_FILE" <(echo "$MANAGED_SETTINGS") > "$SETTINGS_FILE.tmp" \
+          && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+      fi
 
-       # Create directory if it doesn't exist
-       mkdir -p "$(dirname "$SETTINGS_FILE")"
+      # Merge models.json
+      MODELS_FILE="$HOME/.pi/agent/models.json"
+      MANAGED_MODELS='${managedModels}'
 
-       if [ -f "$SETTINGS_FILE" ]; then
-         # First, ensure our custom extension is in the extensions array
-         # Then merge other settings with ours taking precedence
-         ${pkgs.jq}/bin/jq -s '
-           .[0] as $our |
-           .[1] as $existing |
-           # Remove lastChangelogVersion if present
-           ($existing | del(.lastChangelogVersion)) as $cleanExisting |
-           # Merge extensions arrays
-           ($cleanExisting.extensions // []) as $existingExt |
-           ($our.extensions // []) as $ourExt |
-           $cleanExisting * $our |
-           .extensions = (($existingExt + $ourExt) | unique)
-         ' "$OUR_SETTINGS" "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
-       else
-         # No existing file, just copy our settings
-         cp "$OUR_SETTINGS" "$SETTINGS_FILE"
-       fi
-     '';
-   })
+      if [ ! -f "$MODELS_FILE" ]; then
+        echo "$MANAGED_MODELS" | ${pkgs.jq}/bin/jq '.' > "$MODELS_FILE"
+      else
+        # Merge nix-managed models into existing file:
+        # For providers, we merge at the provider level - nix-managed provider configs
+        # overwrite existing ones, but we preserve any providers not managed by nix
+        ${pkgs.jq}/bin/jq -s '
+          .[0] as $existing | .[1] as $managed |
+          # Merge providers: managed providers overwrite existing ones
+          # but we keep any existing providers not in managed
+          ($existing.providers // {}) as $existingProviders |
+          ($managed.providers // {}) as $managedProviders |
+          $existing | .providers = ($existingProviders * $managedProviders)
+        ' "$MODELS_FILE" <(echo "$MANAGED_MODELS") > "$MODELS_FILE.tmp" \
+          && mv "$MODELS_FILE.tmp" "$MODELS_FILE"
+      fi
+    '';
+  }
+
+  # Full pi installation from source (Linux only)
+  (lib.mkIf features.agents.pi {
+    home.packages = [
+      pi-coding-agent
+    ];
+
+    # Set environment variable to disable Pi version checks
+    home.sessionVariables = {
+      PI_SKIP_VERSION_CHECK = "1";
+    };
+
+    home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
+    # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
+  })
+]
