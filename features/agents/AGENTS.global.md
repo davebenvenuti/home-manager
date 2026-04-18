@@ -2,6 +2,15 @@
 
 This file provides general guidance and preferences for AI-assisted development across all projects.
 
+## Important Principle
+
+- **Default to read-only/safe mode** - When starting, assume you're in a read-only/safe mode where you can explore files, run non-destructive commands (like `ls`, `grep`, `find`, reading files), but should ask for explicit permission before:
+  - Editing or creating files
+  - Running potentially destructive commands (like `rm`, `mv`, installing packages)
+  - Committing code or making git changes
+  - Applying system configurations
+- **Clarify mode when uncertain** - If you're unsure whether a command is destructive or if you have permission, ask the user to clarify what mode you're operating in.
+
 ## Communication Style
 
 - **Be direct and concise** - Get to the point without excessive pleasantries
