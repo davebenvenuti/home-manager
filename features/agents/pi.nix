@@ -1,57 +1,5 @@
 { lib, features, pkgs, config, ... }:
 let
-  pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
-    pname = "pi-coding-agent";
-    version = "0.67.1";
-    nodejs = pkgs.nodejs_22;
-
-    src = pkgs.fetchFromGitHub {
-      owner = "badlogic";
-      repo = "pi-mono";
-      rev = "v${finalAttrs.version}";
-      hash = "sha256-Hh4nRMxtlzRHDgr8P6Pm7FDzV2f+6MIxNmVMKtnwb8I=";
-    };
-
-    npmDepsHash = "sha256-t1M9qED2BeJGDgbC1ZHsiTT5NMXmtEr+rsu2kKM0MLg=";
-
-    npmWorkspace = "packages/coding-agent";
-    npmFlags = [ "--legacy-peer-deps" ];
-    makeCacheWritable = true;
-
-    nativeBuildInputs = [ pkgs.pkg-config ];
-    buildInputs = [
-      pkgs.cairo
-      pkgs.pango
-      pkgs.libjpeg
-      pkgs.giflib
-      pkgs.librsvg
-      pkgs.pixman
-    ];
-
-    preBuild = ''
-      npx tsgo -p packages/tui/tsconfig.build.json
-      npx tsgo -p packages/ai/tsconfig.build.json
-      npx tsgo -p packages/agent/tsconfig.build.json
-    '';
-
-    postInstall = ''
-      workspaceRoot="$out/lib/node_modules/pi-monorepo"
-      mkdir -p "$workspaceRoot/packages"
-      cp -r packages/{ai,agent,tui,coding-agent} "$workspaceRoot/packages/"
-
-      # Keep required workspace links and drop only unresolved leftovers.
-      find "$workspaceRoot/node_modules" -xtype l -delete
-    '';
-
-    meta = {
-      description = "Minimal terminal coding harness for agentic workflows";
-      homepage = "https://github.com/badlogic/pi-mono";
-      license = lib.licenses.mit;
-      mainProgram = "pi";
-      platforms = lib.platforms.linux;
-    };
-  });
-
   # Nix-managed pi settings. These are merged into the existing settings.json
   # on each home-manager switch, preserving any runtime changes pi has made
   # to other fields (lastChangelogVersion, theme, compaction, etc.).
@@ -162,8 +110,61 @@ in lib.mkMerge [
     '';
   }
 
-  # Full pi installation from source (Linux only)
-  (lib.mkIf features.agents.pi {
+  # Full pi installation from source (when enabled)
+  (lib.mkIf features.agents.pi (let
+    pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
+      pname = "pi-coding-agent";
+      version = "0.67.1";
+      nodejs = pkgs.nodejs_22;
+
+      src = pkgs.fetchFromGitHub {
+        owner = "badlogic";
+        repo = "pi-mono";
+        rev = "v${finalAttrs.version}";
+        hash = "sha256-Hh4nRMxtlzRHDgr8P6Pm7FDzV2f+6MIxNmVMKtnwb8I=";
+      };
+
+      npmDepsHash = "sha256-t1M9qED2BeJGDgbC1ZHsiTT5NMXmtEr+rsu2kKM0MLg=";
+
+      npmWorkspace = "packages/coding-agent";
+      npmFlags = [ "--legacy-peer-deps" ];
+      makeCacheWritable = true;
+
+      nativeBuildInputs = [ pkgs.pkg-config ];
+      buildInputs = [
+        pkgs.cairo
+        pkgs.pango
+        pkgs.libjpeg
+        pkgs.giflib
+        pkgs.librsvg
+        pkgs.pixman
+      ];
+
+      preBuild = ''
+        npx tsgo -p packages/tui/tsconfig.build.json
+        npx tsgo -p packages/ai/tsconfig.build.json
+        npx tsgo -p packages/agent/tsconfig.build.json
+      '';
+
+      postInstall = ''
+        workspaceRoot="$out/lib/node_modules/pi-monorepo"
+        mkdir -p "$workspaceRoot/packages"
+        cp -r packages/{ai,agent,tui,coding-agent} "$workspaceRoot/packages/"
+
+        # Keep required workspace links and drop only unresolved leftovers.
+        find "$workspaceRoot/node_modules" -xtype l -delete
+      '';
+
+      meta = {
+        description = "Minimal terminal coding harness for agentic workflows";
+        homepage = "https://github.com/badlogic/pi-mono";
+        license = lib.licenses.mit;
+        mainProgram = "pi";
+        # Try to build on Darwin too
+        platforms = lib.platforms.linux ++ lib.platforms.darwin;
+      };
+    });
+  in {
     home.packages = [
       pi-coding-agent
     ];
@@ -176,5 +177,5 @@ in lib.mkMerge [
     home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
     home.file.".pi/custom-extensions/todo.ts".source = "${pi-coding-agent}/lib/node_modules/pi-monorepo/examples/extensions/todo.ts";
     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
-  })
+  }))
 ]

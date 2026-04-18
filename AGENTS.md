@@ -39,3 +39,24 @@ Agent-specific directories are symlinked to these shared resources:
 - `~/.pi/agent/skills` → `~/.agents/skills`
 
 Skills are managed via Home Manager and can be updated by editing files in `~/.config/home-manager/features/agents/skills/`.
+
+## Troubleshooting Notes
+
+### Nix Evaluation Issues
+
+When testing home-manager configurations, avoid using `nix eval` commands that try to evaluate the entire configuration (like `nix eval .#homeConfigurations."dave@air".config`). These commands often fail due to:
+- Deprecated option warnings that interrupt evaluation
+- Import-from-derivation (IFD) issues
+- Evaluation of optional features that aren't fully defined
+
+Instead, use:
+- `home-manager switch -b hmbackup` to apply changes directly
+- `nix build .#homeConfigurations."dave@air".activationPackage` to test buildability
+- Check specific attributes with limited scope if needed
+
+### Cross-Platform Building
+
+When modifying packages for multiple platforms (Linux/Darwin):
+- Test builds on the actual target platform when possible
+- Remote builders or QEMU emulation may be needed for cross-platform testing
+- Platform-specific dependencies should be conditionally added using `lib.optionals pkgs.stdenv.isDarwin` or `lib.optionals pkgs.stdenv.isLinux`
