@@ -72,6 +72,7 @@
           ghostty = true;
           ruby = true;
           git-hooks = true;
+          agents.pi = true;
         });
       };
     };
