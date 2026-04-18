@@ -63,6 +63,8 @@ let
     defaultModel = "deepseek-chat";
     extensions = [
       "~/.pi/custom-extensions/notify.ts"
+    ] ++ lib.optionals features.agents.pi [
+      "~/.pi/custom-extensions/todo.ts"
     ];
     models = {
       "deepseek-chat" = {
@@ -172,6 +174,7 @@ in lib.mkMerge [
     };
 
     home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
+    home.file.".pi/custom-extensions/todo.ts".source = "${pi-coding-agent}/lib/node_modules/pi-monorepo/examples/extensions/todo.ts";
     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
   })
 ]
