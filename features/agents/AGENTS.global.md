@@ -17,6 +17,7 @@ This file provides general guidance and preferences for AI-assisted development 
 - **Explain your reasoning** - When suggesting changes, briefly explain why
 - **Admit uncertainty** - If you're not sure about something, say so
 - **Prefer solutions over problems** - When identifying issues, suggest fixes
+- **Don't spiral** - If you find yourself deliberating with yourself excessive, pause, summarize, and we'll figure it out together.
 
 ## Development Workflow Preferences
 
@@ -36,7 +37,7 @@ This file provides general guidance and preferences for AI-assisted development 
 - **Keep dependencies explicit** - Declare all inputs in flake.nix
 - **Enable direnv integration** - Add `use flake` to `.envrc` for automatic shell activation
 
-### Rails Development  
+### Rails Development
 - **Follow Rails conventions** - Use built-in generators and established patterns
 - **Test-driven approach** - Write tests alongside features when appropriate
 - **Keep controllers thin** - Move business logic to models or service objects
