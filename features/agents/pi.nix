@@ -8,20 +8,16 @@ let
   # existing list (deduped), so runtime additions are preserved.
   managedPiSettings = builtins.toJSON {
     defaultProvider = "deepseek";
-    defaultModel = "deepseek-chat";
+    defaultModel = "deepseek-v4-flash";
     extensions = [
       "~/.pi/custom-extensions/notify.ts"
     ] ++ lib.optionals features.agents.pi [
       "~/.pi/custom-extensions/todo.ts"
     ];
     models = {
-      "deepseek-chat" = {
+      "deepseek-v4-flash" = {
         provider = "deepseek";
-        description = "DeepSeek V3 is a powerful language model designed for coding tasks, offering enhanced performance and accuracy.";
-      };
-      "qwen/qwen-2.5-code" = {
-        provider = "openrouter";
-        description = "Qwen 2.5 Code is a specialized language model optimized for code generation and understanding, providing high-quality outputs for programming tasks.";
+        description = "DeepSeek V4 Flash";
       };
     };
   };
@@ -37,15 +33,15 @@ let
         authHeader = true;
         models = [
           {
-            id = "deepseek-chat";
-            name = "DeepSeek V3";
+            id = "deepseek-v4-flash";
+            name = "DeepSeek V4 Flash";
             reasoning = true;
-            contextWindow = 128000;  # Updated from 64k to 128k
+            contextWindow = 1000000;
             maxTokens = 5000;
             cost = {
-              input = 0.27;
-              output = 1.1;
-              cacheRead = 0.07;
+              input = 0.14;
+              output = 0.28;
+              cacheRead = 0.0028;
               cacheWrite = 1.1;
             };
           }
