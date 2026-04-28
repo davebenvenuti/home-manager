@@ -116,17 +116,17 @@ in lib.mkMerge [
   (lib.mkIf features.agents.pi (let
     pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
       pname = "pi-coding-agent";
-      version = "0.67.1";
+      version = "0.70.6";
       nodejs = pkgs.nodejs_22;
 
       src = pkgs.fetchFromGitHub {
         owner = "badlogic";
         repo = "pi-mono";
         rev = "v${finalAttrs.version}";
-        hash = "sha256-Hh4nRMxtlzRHDgr8P6Pm7FDzV2f+6MIxNmVMKtnwb8I=";
+        hash = "sha256-XZUnKk+B9kWn51kRfMkfInYCz+5hVuWQBvgOm9PO9bo=";
       };
 
-      npmDepsHash = "sha256-t1M9qED2BeJGDgbC1ZHsiTT5NMXmtEr+rsu2kKM0MLg=";
+      npmDepsHash = "sha256-pEVIqp9rbuHFE6eqSmADmIXWAPey1VbD7qmOJwksz1o=";
 
       npmWorkspace = "packages/coding-agent";
       npmFlags = [ "--legacy-peer-deps" ];
