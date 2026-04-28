@@ -49,6 +49,12 @@ let
       };
     };
   };
+
+  # Packages/extensions to auto-install via `pi install` on each home-manager switch.
+  # Items use pi's install syntax, e.g. "npm:pi-web-access" or "ext:some-extension".
+  piInstall = [
+    "npm:pi-web-access"
+  ];
 in lib.mkMerge [
   # Extensions deployed for any system with pi (even if pi is installed externally)
   {
@@ -126,7 +132,7 @@ in lib.mkMerge [
       npmFlags = [ "--legacy-peer-deps" ];
       makeCacheWritable = true;
 
-      nativeBuildInputs = [ pkgs.pkg-config ];
+      nativeBuildInputs = [ pkgs.pkg-config pkgs.makeWrapper ];
       buildInputs = [
         pkgs.cairo
         pkgs.pango
@@ -149,6 +155,12 @@ in lib.mkMerge [
 
         # Keep required workspace links and drop only unresolved leftovers.
         find "$workspaceRoot/node_modules" -xtype l -delete
+
+        # Wrap pi so npm:... installs work: set a writable global prefix and
+        # ensure nodejs/npm are on PATH (the Nix store is read-only).
+        wrapProgram $out/bin/pi \
+          --set npm_config_prefix '$HOME/.npm-global' \
+          --prefix PATH : ${pkgs.nodejs_22}/bin
       '';
 
       meta = {
@@ -173,5 +185,16 @@ in lib.mkMerge [
     home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
     home.file.".pi/custom-extensions/todo.ts".source = "${pi-coding-agent}/lib/node_modules/pi-monorepo/examples/extensions/todo.ts";
     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
+
+    home.activation.piInstall = lib.hm.dag.entryAfter [ "piSettingsMerge" ] (
+      if piInstall == [] then "" else ''
+        # pi's npm:... installs use a wrapper that sets npm_config_prefix and
+        # adds nodejs/npm to PATH, so no additional env setup needed here.
+        ${builtins.concatStringsSep "\n" (map (item: ''
+          echo "[home-manager] pi install: ${item}"
+          ${lib.getExe pi-coding-agent} install "${item}"
+        '') piInstall)}
+      ''
+    );
   }))
 ]
