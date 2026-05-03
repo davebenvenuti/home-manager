@@ -7,63 +7,77 @@ description: Guides for developing Ruby on Rails applications using Nix for repr
 
 This skill covers Rails development workflows using Nix for environment management.
 
+## Key principles
+
+- **Define the environment first** — create `flake.nix` at the project destination before running any Rails commands. This ensures a consistent Ruby version and all system dependencies from the start.
+- **Project-local GEM_HOME** — use a project-specific `.gem/` directory to avoid conflicts with user-global gems compiled against different Ruby versions. The flake sets `GEM_HOME=$PWD/.gem` via `shellHook`.
+- **No vendoring** — `.gem/` is added to `.gitignore`. The project-local gem home is for development only.
+
 ## Creating a new Rails project
 
-Use the clean environment approach (recommended):
+### 1. Create the project directory and flake
 
 ```bash
-cd /tmp
-nix-shell -p ruby_4_0 sqlite libyaml --run "gem install rails -v 8.0.0 && rails new [project_name] --database=sqlite3"
-mv [project_name] /path/to/desired/location
+mkdir /path/to/project
+cd /path/to/project
 ```
 
-**Note:** This ensures you get Rails 8.0.0 with Ruby 4.0, regardless of what Rails version is packaged in Nixpkgs.
+Create `flake.nix` (see examples below), then enter the Nix development shell:
 
-## Nix-managed Rails Development Environment
-
-When working with existing Rails projects that use Nix for development environment management:
-
-1. **Check for Nix configuration**: Look for `flake.nix`, `shell.nix`, or `.envrc` files
-2. **Enter development shell**: Use `nix develop` or `nix-shell` to enter the development environment
-3. **Use direnv**: If `.envrc` exists with `use flake` or `use nix`, ensure direnv is installed and configured
-4. **Install gems**: Run `bundle install` within the Nix shell
-5. **External dependencies**: If gems require external libraries (e.g., `libyaml` for psych, `postgresql` for pg), ensure they're included in the Nix configuration
-
-### Example flake.nix for Rails projects
-
-**PostgreSQL-based Rails app (Ruby 4.0):**
-```nix
-{
-  description = "Developer environment for Rails app";
-
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  };
-
-  outputs = { self, nixpkgs }:
-    let
-      supportedSystems = [ "aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f {
-        pkgs = import nixpkgs { inherit system; };
-      });
-    in {
-      devShells = forAllSystems ({ pkgs }: with pkgs; {
-        default = mkShell {
-          packages = [
-            git
-            gnumake
-            nixpkgs-fmt
-            ruby_4_0
-            postgresql_18
-            libyaml  # Required for psych gem
-          ];
-        };
-      });
-    };
-}
+```bash
+nix develop
 ```
 
-**SQLite-based Rails app (Ruby 4.0):**
+This generates `flake.lock` and sets up the environment with `GEM_HOME` pointing to `.gem/`.
+
+### 2. Install Rails and generate the project
+
+From within the Nix shell:
+
+```bash
+gem install rails -v 8.0.0 --no-doc
+rails new . --database=sqlite3 --skip-git --force
+```
+
+**Flags explained:**
+- `--skip-git` — prevents Rails from running `git init`, since we want to add our own `.gitignore` (with `.gem/` ignored) before committing
+- `--force` — allows creating the project in the current (non-empty) directory
+
+### 3. Set up Git, .gitignore, and .envrc
+
+After `rails new` completes, create `.gitignore` with `.gem/` and `.direnv/` ignored:
+
+```gitignore
+# ...
+/.gem/
+/.direnv/
+```
+
+Create `.envrc` for direnv integration:
+
+```
+use flake
+```
+
+Then initialize git and commit:
+
+```bash
+git init
+git add -A
+git commit -m "Initialize new Rails project"
+```
+
+### Why this approach
+
+- **Consistent environment** — the Nix shell provides Ruby 4.0, SQLite, and libyaml consistently, avoiding version mismatches with user-global gems
+- **No /tmp shuffling** — the project is created directly at its final destination
+- **Isolated gems** — `GEM_HOME` is scoped to `.gem/` in the project, so `gem install` and `bundle install` use fresh native extensions compiled against the Nix shell's Ruby
+- **Gems not vendored** — `.gem/` is in `.gitignore`
+
+## Example flake.nix for Rails projects
+
+### SQLite-based Rails app (Ruby 4.0):
+
 ```nix
 {
   description = "Developer environment for Rails app";
@@ -89,6 +103,49 @@ When working with existing Rails projects that use Nix for development environme
             sqlite  # SQLite database
             libyaml  # Required for psych gem
           ];
+
+          shellHook = ''
+            export GEM_HOME="$PWD/.gem"
+            export PATH="$GEM_HOME/bin:$PATH"
+          '';
+        };
+      });
+    };
+}
+```
+
+### PostgreSQL-based Rails app (Ruby 4.0):
+
+```nix
+{
+  description = "Developer environment for Rails app";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
+
+  outputs = { self, nixpkgs }:
+    let
+      supportedSystems = [ "aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux" ];
+      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f {
+        pkgs = import nixpkgs { inherit system; };
+      });
+    in {
+      devShells = forAllSystems ({ pkgs }: with pkgs; {
+        default = mkShell {
+          packages = [
+            git
+            gnumake
+            nixpkgs-fmt
+            ruby_4_0
+            postgresql_18
+            libyaml  # Required for psych gem
+          ];
+
+          shellHook = ''
+            export GEM_HOME="$PWD/.gem"
+            export PATH="$GEM_HOME/bin:$PATH"
+          '';
         };
       });
     };
@@ -117,7 +174,7 @@ bin/rails server -p 3000
 
 ## Adding new dependencies
 
-- **Ruby gems**: Add to `Gemfile` and run `bundle install`
+- **Ruby gems**: Add to `Gemfile` and run `bundle install`. Bundler will install into the project's `.gem/` directory.
 - **System libraries**: Add to `packages` list in `flake.nix` (e.g., `libpq` for PostgreSQL C library, `sqlite` for SQLite database)
 - **Development tools**: Add to `packages` list in `flake.nix`
 
