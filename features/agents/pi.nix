@@ -159,7 +159,7 @@ in lib.mkMerge [
         # Wrap pi so npm:... installs work: set a writable global prefix and
         # ensure nodejs/npm are on PATH (the Nix store is read-only).
         wrapProgram $out/bin/pi \
-          --set npm_config_prefix '$HOME/.npm-global' \
+          --run 'export npm_config_prefix="$HOME/.npm-global"' \
           --prefix PATH : ${pkgs.nodejs_22}/bin
       '';
 
