@@ -58,6 +58,8 @@
   home.packages = with pkgs; [
     # Tig - text-mode interface for Git
     tig
+
+    lazygit
   ];
 
   home.sessionVariables = {
