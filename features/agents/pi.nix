@@ -11,7 +11,6 @@ let
     defaultModel = "deepseek-v4-flash";
     extensions = [
       "~/.pi/custom-extensions/notify.ts"
-    ] ++ lib.optionals features.agents.pi [
       "~/.pi/custom-extensions/todo.ts"
     ];
     models = {
@@ -55,7 +54,7 @@ let
   piInstall = [
     "npm:pi-web-access"
   ];
-in lib.mkMerge [
+in lib.mkIf features.agents.pi (lib.mkMerge [
   # Extensions deployed for any system with pi (even if pi is installed externally)
   {
     home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
@@ -197,4 +196,4 @@ in lib.mkMerge [
       ''
     );
   }))
-]
+])
