@@ -1,6 +1,6 @@
-{ lib, features, pkgs, ... }:
+{ ... }:
 {
-  programs.direnv = lib.mkIf features.direnv {
+  programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
 

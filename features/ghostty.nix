@@ -1,6 +1,6 @@
-{ lib, features, pkgs, ... }:
+{ lib, pkgs, ... }:
 {
-  programs.ghostty = lib.optionalAttrs features.ghostty {
+  programs.ghostty = {
     enable = true;
 
     # Installing Ghostty isn't supported on Darwin

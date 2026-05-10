@@ -98,24 +98,25 @@ in
   };
 
   # Import program configurations from separate modules
-  imports = [
-    ./programs/git.nix
-    ./features/tmux.nix
-    ./programs/zsh.nix
-    ./programs/eza.nix
-    ./programs/bat.nix
-    ./programs/starship.nix
-    ./programs/emacs.nix
-
-    ./features/zshrc-private-sync.nix
-    ./features/ghostty.nix
-    ./features/agents/default.nix
-    ./features/git.nix
-    ./features/direnv.nix
-    ./features/ruby.nix
-    ./features/monitoring.nix
-
-  ];
+  imports =
+    [ # Always-on modules — no feature flag needed
+      ./programs/git.nix
+      ./features/tmux.nix
+      ./programs/zsh.nix
+      ./programs/eza.nix
+      ./programs/bat.nix
+      ./programs/starship.nix
+      ./programs/emacs.nix
+      ./features/git.nix
+    ]
+    # Feature-flagged modules — gated at import level
+    ++ lib.optionals features.direnv [ ./features/direnv.nix ]
+    ++ lib.optionals features.ruby [ ./features/ruby.nix ]
+    ++ lib.optionals features.monitoring [ ./features/monitoring.nix ]
+    ++ lib.optionals features.zshrc-private-sync [ ./features/zshrc-private-sync.nix ]
+    ++ lib.optionals features.ghostty [ ./features/ghostty.nix ]
+    ++ lib.optionals (features.agents.opencode || features.agents.pi) [ ./features/agents/default.nix ]
+    ++ lib.optionals features.librewolf [ ./programs/librewolf.nix ];
 
   # Activation scripts run after configuration is applied
   home.activation = {

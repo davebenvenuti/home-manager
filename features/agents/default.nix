@@ -1,8 +1,6 @@
-{ lib, features, config, pkgs, ... }:
+{ lib, config, pkgs, ... }:
 
 let
-  agentsEnabled = features.agents.opencode || features.agents.pi;
-  
   # Get all skill directories
   skillEntries = builtins.attrNames (builtins.readDir ./skills);
   
@@ -26,10 +24,10 @@ in {
     ./pi.nix
   ];
 
-  # Create shared agents directory and files when any agent is enabled
-  home.file = lib.mkIf agentsEnabled (lib.mkMerge ([
+  # Create shared agents directory and files
+  home.file = lib.mkMerge ([
     {
       ".agents/AGENTS.md".source = ./AGENTS.global.md;
     }
-  ] ++ skillDirDeclarations));
+  ] ++ skillDirDeclarations);
 }

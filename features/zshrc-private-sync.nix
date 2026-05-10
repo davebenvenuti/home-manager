@@ -1,6 +1,5 @@
-{ config, pkgs, lib, features, ... }:
-
-lib.optionalAttrs features.zshrc-private-sync {
+{ config, pkgs, ... }:
+{
   programs.starship.settings.custom.zshrc_private_sync = {
     description = "Indicates whether .zshrc.private needs to be synced to bitwarden";
     when = "zsh -c \"source ${config.home.homeDirectory}/.local/share/zsh/zshrc-private-sync.zsh && _zshrc_private_needs_sync_indicator\"";
