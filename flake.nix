@@ -58,6 +58,7 @@
           opencode = true;
           pi = false;
         };
+        librewolf = false;
       };
     in
     {
