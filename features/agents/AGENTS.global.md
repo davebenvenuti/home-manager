@@ -37,6 +37,49 @@ This file provides general guidance and preferences for AI-assisted development 
 - **Keep dependencies explicit** - Declare all inputs in flake.nix
 - **Enable direnv integration** - Add `use flake` to `.envrc` for automatic shell activation
 
+#### `lib.mkIf` vs `lib.optionals` / `lib.optionalAttrs`
+
+These serve different purposes and are not interchangeable:
+
+| Situation | Use | Reason |
+|---|---|---|
+| Conditional **option definition block** inside a module's `config = { ... }` | `lib.mkIf` | Module system property — when condition is false, the definition disappears entirely (doesn't participate in merging or override priority) |
+| Conditional elements **inside a list value** (e.g. `home.packages`, `buildInputs`) | `lib.optionals` | Plain Nix function — returns `[]` when false, concats into the list |
+| Conditional keys **inside an attribute set value** (pure Nix, not module opts) | `lib.optionalAttrs` | Plain Nix function — returns `{}` when false, merges into the attrset |
+| Any conditional where the condition **references other `config` values being defined** | **Must** use `mkIf` | Plain `if` causes infinite recursion; `mkIf` delays the condition into the module system |
+
+**Key points:**
+- `mkIf` only has meaning **inside module option definitions**. Outside that context it's a no-op wrapper.
+- `optionals`/`optionalAttrs` are plain Nix functions and work anywhere.
+- `mkIf false` removes the definition entirely. `optionalAttrs false` still produces `{}`, which can accidentally override a `mkDefault` value from another module.
+
+**Correct patterns:**
+```nix
+# mkIf: wrapping an option definition block
+config = lib.mkIf features.direnv {
+  programs.direnv.enable = true;
+};
+
+# optionals: conditional items inside a list
+home.packages = with pkgs; [
+  htop
+] ++ lib.optionals pkgs.stdenv.isLinux [
+  iotop
+];
+
+# optionalAttrs: conditional keys in an attrset (outside module config)
+someValue = { a = 1; } // lib.optionalAttrs cond { b = 2; };
+```
+
+**Anti-patterns:**
+```nix
+# BAD: wrapping a list with mkIf (use optionals/optionalAttrs instead)
+home.packages = lib.mkIf features.ruby [ ruby_4_0 ];
+
+# BAD: plain if referencing config — infinite recursion
+config = if config.services.xxx.enable then { ... } else {};
+```
+
 ### Rails Development
 - **Follow Rails conventions** - Use built-in generators and established patterns
 - **Test-driven approach** - Write tests alongside features when appropriate

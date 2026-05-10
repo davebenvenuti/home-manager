@@ -54,6 +54,73 @@ Instead, use:
 - `nix build .#homeConfigurations."dave@air".activationPackage` to test buildability
 - Check specific attributes with limited scope if needed
 
+### Nix Language Patterns
+
+#### `lib.mkIf` vs `lib.optionals` / `lib.optionalAttrs`
+
+These serve different purposes and are not interchangeable. Use the right one:
+
+| Situation | Use | Reason |
+|---|---|---|
+| Conditional **option definition block** inside a module's `config = { ... }` | `lib.mkIf` | Module system property — when condition is false, the definition disappears entirely (doesn't participate in merging or override priority) |
+| Conditional elements **inside a list value** (e.g. `home.packages`, `buildInputs`, list of file paths) | `lib.optionals` | Plain Nix function — returns `[]` when false, concats into the list |
+| Conditional keys **inside an attribute set value** (pure Nix, not module opts) | `lib.optionalAttrs` | Plain Nix function — returns `{}` when false, merges into the attrset |
+| Any conditional where the condition **references other `config` values being defined** | **Must** use `mkIf` | Plain `if` causes infinite recursion because it evaluates immediately; `mkIf` delays the condition into the module system |
+
+**Key points:**
+
+- `mkIf` only has special meaning **inside module option definitions**. Outside that context (e.g. in a `let ... in` expression, building up a plain value), it acts as a no-op wrapper — confusing and useless.
+- `optionals`/`optionalAttrs` are just plain Nix functions and work anywhere.
+- `mkIf false` removes the definition entirely. `optionalAttrs false` still produces `{}`, which **can accidentally override** a `mkDefault` value from another module. This is the subtle bug to watch for.
+
+**Examples — correct patterns:**
+
+```nix
+# mkIf: wrapping a complete option definition block under a feature flag
+{ config, lib, features, ... }: {
+  config = lib.mkIf features.direnv {
+    programs.direnv.enable = true;
+  };
+}
+
+# mkIf: conditional block inside mkMerge
+config = lib.mkMerge [
+  { home.packages = with pkgs; [ htop btop ]; }
+  (lib.mkIf features.monitoring {
+    home.packages = with pkgs; [ btop procs ];
+  })
+];
+
+# optionals: conditional items inside a list
+home.packages = with pkgs; [
+  htop
+  btop
+] ++ lib.optionals pkgs.stdenv.isLinux [
+  iotop
+  nmon
+];
+
+# optionalAttrs: conditional keys in an attrset (outside module config)
+someValue = {
+  a = 1;
+} // lib.optionalAttrs (someCondition) {
+  b = 2;
+};
+```
+
+**Avoid these anti-patterns:**
+
+```nix
+# BAD: wrapping a list value with mkIf (optionals or optionalAttrs is clearer)
+home.packages = lib.mkIf features.ruby [ ruby_4_0 ];  ← works but misleading
+
+# BAD: using plain if in module config when condition references config
+config = if config.services.xxx.enable then { ... } else {};  ← infinite recursion!
+
+# BAD: mkIf outside module config
+let result = lib.mkIf true { a = 1; };  ← mkIf is a no-op here, just returns { a = 1 }
+```
+
 ### Cross-Platform Building
 
 When modifying packages for multiple platforms (Linux/Darwin):
