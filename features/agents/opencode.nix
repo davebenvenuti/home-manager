@@ -1,6 +1,6 @@
-{ lib, features, pkgs, config, ... }:
+{ lib, pkgs, config, ... }:
 {
-  programs.opencode = lib.mkIf features.agents.opencode {
+  programs.opencode = {
     enable = true;
     package = pkgs.opencode;
 
@@ -31,7 +31,7 @@
     };
   };
 
-  home.file = lib.mkIf features.agents.opencode {
+  home.file = {
     ".config/opencode/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
     ".config/opencode/skills".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
   };

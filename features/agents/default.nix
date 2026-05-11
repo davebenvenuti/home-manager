@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, features, config, pkgs, ... }:
 
 let
   # Get all skill directories
@@ -18,11 +18,11 @@ let
     }
   ]) skillDirs);
 in {
-  # Import agent-specific configurations (they have internal feature guards)
-  imports = [
-    ./opencode.nix
-    ./pi.nix
-  ];
+  # Agent-specific configurations — gated at import level
+  imports =
+    [ ]
+    ++ lib.optionals features.agents.opencode [ ./opencode.nix ]
+    ++ lib.optionals features.agents.pi [ ./pi.nix ];
 
   # Create shared agents directory and files
   home.file = lib.mkMerge ([

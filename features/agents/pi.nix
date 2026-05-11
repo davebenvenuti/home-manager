@@ -1,4 +1,4 @@
-{ lib, features, pkgs, config, ... }:
+{ lib, pkgs, config, ... }:
 let
   # Nix-managed pi settings. These are merged into the existing settings.json
   # on each home-manager switch, preserving any runtime changes pi has made
@@ -54,8 +54,68 @@ let
   piInstall = [
     "npm:pi-web-access"
   ];
-in lib.mkIf features.agents.pi (lib.mkMerge [
-  # Extensions deployed for any system with pi (even if pi is installed externally)
+
+  # Full pi installation from source
+  pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
+    pname = "pi-coding-agent";
+    version = "0.70.6";
+    nodejs = pkgs.nodejs_22;
+
+    src = pkgs.fetchFromGitHub {
+      owner = "badlogic";
+      repo = "pi-mono";
+      rev = "v${finalAttrs.version}";
+      hash = "sha256-XZUnKk+B9kWn51kRfMkfInYCz+5hVuWQBvgOm9PO9bo=";
+    };
+
+    npmDepsHash = "sha256-pEVIqp9rbuHFE6eqSmADmIXWAPey1VbD7qmOJwksz1o=";
+
+    npmWorkspace = "packages/coding-agent";
+    npmFlags = [ "--legacy-peer-deps" ];
+    makeCacheWritable = true;
+
+    nativeBuildInputs = [ pkgs.pkg-config pkgs.makeWrapper ];
+    buildInputs = [
+      pkgs.cairo
+      pkgs.pango
+      pkgs.libjpeg
+      pkgs.giflib
+      pkgs.librsvg
+      pkgs.pixman
+    ];
+
+    preBuild = ''
+      npx tsgo -p packages/tui/tsconfig.build.json
+      npx tsgo -p packages/ai/tsconfig.build.json
+      npx tsgo -p packages/agent/tsconfig.build.json
+    '';
+
+    postInstall = ''
+      workspaceRoot="$out/lib/node_modules/pi-monorepo"
+      mkdir -p "$workspaceRoot/packages"
+      cp -r packages/{ai,agent,tui,coding-agent} "$workspaceRoot/packages/"
+
+      # Keep required workspace links and drop only unresolved leftovers.
+      find "$workspaceRoot/node_modules" -xtype l -delete
+
+      # Wrap pi so npm:... installs work: set a writable global prefix and
+      # ensure nodejs/npm are on PATH (the Nix store is read-only).
+      wrapProgram $out/bin/pi \
+        --run 'export npm_config_prefix="$HOME/.npm-global"' \
+        --prefix PATH : ${pkgs.nodejs_22}/bin
+    '';
+
+    meta = {
+      description = "Minimal terminal coding harness for agentic workflows";
+      homepage = "https://github.com/badlogic/pi-mono";
+      license = lib.licenses.mit;
+      mainProgram = "pi";
+      # Try to build on Darwin too
+      platforms = lib.platforms.linux ++ lib.platforms.darwin;
+    };
+  });
+in lib.mkMerge [
+  # Extensions and settings deployed for any system with pi
   {
     home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
 
@@ -111,67 +171,8 @@ in lib.mkIf features.agents.pi (lib.mkMerge [
     '';
   }
 
-  # Full pi installation from source (when enabled)
-  (lib.mkIf features.agents.pi (let
-    pi-coding-agent = pkgs.buildNpmPackage (finalAttrs: {
-      pname = "pi-coding-agent";
-      version = "0.70.6";
-      nodejs = pkgs.nodejs_22;
-
-      src = pkgs.fetchFromGitHub {
-        owner = "badlogic";
-        repo = "pi-mono";
-        rev = "v${finalAttrs.version}";
-        hash = "sha256-XZUnKk+B9kWn51kRfMkfInYCz+5hVuWQBvgOm9PO9bo=";
-      };
-
-      npmDepsHash = "sha256-pEVIqp9rbuHFE6eqSmADmIXWAPey1VbD7qmOJwksz1o=";
-
-      npmWorkspace = "packages/coding-agent";
-      npmFlags = [ "--legacy-peer-deps" ];
-      makeCacheWritable = true;
-
-      nativeBuildInputs = [ pkgs.pkg-config pkgs.makeWrapper ];
-      buildInputs = [
-        pkgs.cairo
-        pkgs.pango
-        pkgs.libjpeg
-        pkgs.giflib
-        pkgs.librsvg
-        pkgs.pixman
-      ];
-
-      preBuild = ''
-        npx tsgo -p packages/tui/tsconfig.build.json
-        npx tsgo -p packages/ai/tsconfig.build.json
-        npx tsgo -p packages/agent/tsconfig.build.json
-      '';
-
-      postInstall = ''
-        workspaceRoot="$out/lib/node_modules/pi-monorepo"
-        mkdir -p "$workspaceRoot/packages"
-        cp -r packages/{ai,agent,tui,coding-agent} "$workspaceRoot/packages/"
-
-        # Keep required workspace links and drop only unresolved leftovers.
-        find "$workspaceRoot/node_modules" -xtype l -delete
-
-        # Wrap pi so npm:... installs work: set a writable global prefix and
-        # ensure nodejs/npm are on PATH (the Nix store is read-only).
-        wrapProgram $out/bin/pi \
-          --run 'export npm_config_prefix="$HOME/.npm-global"' \
-          --prefix PATH : ${pkgs.nodejs_22}/bin
-      '';
-
-      meta = {
-        description = "Minimal terminal coding harness for agentic workflows";
-        homepage = "https://github.com/badlogic/pi-mono";
-        license = lib.licenses.mit;
-        mainProgram = "pi";
-        # Try to build on Darwin too
-        platforms = lib.platforms.linux ++ lib.platforms.darwin;
-      };
-    });
-  in {
+  # Full pi installation
+  {
     home.packages = [
       pi-coding-agent
     ];
@@ -195,5 +196,5 @@ in lib.mkIf features.agents.pi (lib.mkMerge [
         '') piInstall)}
       ''
     );
-  }))
-])
+  }
+]
