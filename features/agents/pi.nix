@@ -200,7 +200,38 @@ in lib.mkMerge [
       source = ./extensions/pi/mcp/package.json;
     };
 
-    home.activation.piMcpInstall = lib.hm.dag.entryAfter [ "piSettingsMerge" ] (
+    home.activation.piMcpConfig = lib.hm.dag.entryAfter [ "piSettingsMerge" ] (
+      if !enableMcp then "" else ''
+        MCP_CONFIG="$HOME/.config/pi/mcp.json"
+        mkdir -p "$(dirname "$MCP_CONFIG")"
+
+        GITHUB_TOKEN="''${GITHUB_TOKEN:-}"
+
+        if [ -z "$GITHUB_TOKEN" ]; then
+          echo "[home-manager] WARNING: GITHUB_TOKEN not set — MCP config generated without GitHub token."
+          echo "[home-manager] Set GITHUB_TOKEN in your environment (e.g. .bashrc, .envrc) and re-run."
+        fi
+
+        ${pkgs.jq}/bin/jq -n \
+          --arg token "$GITHUB_TOKEN" \
+          '{
+            mcpServers: {
+              github: {
+                command: "npx",
+                args: ["-y", "@modelcontextprotocol/server-github"],
+                env: {
+                  GITHUB_PERSONAL_ACCESS_TOKEN: $token
+                }
+              }
+            }
+          }' > "$MCP_CONFIG.tmp" \
+          && mv "$MCP_CONFIG.tmp" "$MCP_CONFIG"
+
+        echo "[home-manager] Generated $MCP_CONFIG"
+      ''
+    );
+
+    home.activation.piMcpInstall = lib.hm.dag.entryAfter [ "piMcpConfig" ] (
       if !enableMcp then "" else ''
         echo "[home-manager] Installing MCP SDK dependencies..."
         cd "$HOME/.pi/custom-extensions/mcp"
