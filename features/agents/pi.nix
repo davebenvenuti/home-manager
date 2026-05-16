@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, features, ... }:
 let
   # Nix-managed pi settings. These are merged into the existing settings.json
   # on each home-manager switch, preserving any runtime changes pi has made
