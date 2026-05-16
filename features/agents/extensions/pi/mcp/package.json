@@ -1,0 +1,9 @@
+{
+  "name": "pi-mcp",
+  "version": "1.0.0",
+  "description": "MCP (Model Context Protocol) integration for Pi",
+  "private": true,
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.16.0"
+  }
+}

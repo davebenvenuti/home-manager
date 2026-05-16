@@ -57,6 +57,7 @@
         agents = {
           opencode = true;
           pi = false;
+          mcp = false;
         };
         librewolf = false;
       };
@@ -67,6 +68,7 @@
         "dave@shithouse" = mkHomeConfig "x86_64-linux" "/home/dave" (nixpkgs.lib.recursiveUpdate defaultFeatures {
           ruby = true;
           agents.pi = true;
+          agents.mcp = true;
           git-hooks = true;
         });
         "dave@air" = mkHomeConfig "aarch64-darwin" "/Users/dave" (nixpkgs.lib.recursiveUpdate defaultFeatures {
@@ -74,6 +76,7 @@
           ruby = true;
           git-hooks = true;
           agents.pi = true;
+          agents.mcp = true;
         });
       };
     };

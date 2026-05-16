@@ -6,13 +6,18 @@ let
   #
   # For arrays (packages, extensions): nix-managed entries are added to the
   # existing list (deduped), so runtime additions are preserved.
+  # Determine if MCP extension is enabled
+  enableMcp = features.agents.mcp or false;
+
   managedPiSettings = builtins.toJSON {
     defaultProvider = "deepseek";
     defaultModel = "deepseek-v4-flash";
-    extensions = [
-      "~/.pi/custom-extensions/notify.ts"
-      "~/.pi/custom-extensions/todo.ts"
-    ];
+    extensions =
+      [
+        "~/.pi/custom-extensions/notify.ts"
+        "~/.pi/custom-extensions/todo.ts"
+      ]
+      ++ lib.optionals enableMcp [ "~/.pi/custom-extensions/mcp/index.ts" ];
     models = {
       "deepseek-v4-flash" = {
         provider = "deepseek";
@@ -186,7 +191,27 @@ in lib.mkMerge [
     home.file.".pi/custom-extensions/todo.ts".source = "${pi-coding-agent}/lib/node_modules/pi-monorepo/examples/extensions/todo.ts";
     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
 
-    home.activation.piInstall = lib.hm.dag.entryAfter [ "piSettingsMerge" ] (
+    # Deploy MCP extension files if enabled
+    home.file.".pi/custom-extensions/mcp/index.ts" = lib.mkIf enableMcp {
+      source = ./extensions/pi/mcp/index.ts;
+    };
+
+    home.file.".pi/custom-extensions/mcp/package.json" = lib.mkIf enableMcp {
+      source = ./extensions/pi/mcp/package.json;
+    };
+
+    home.activation.piMcpInstall = lib.hm.dag.entryAfter [ "piSettingsMerge" ] (
+      if !enableMcp then "" else ''
+        echo "[home-manager] Installing MCP SDK dependencies..."
+        cd "$HOME/.pi/custom-extensions/mcp"
+        if [ -f package.json ]; then
+          npm install --omit=dev 2>&1 | tail -5
+          echo "[home-manager] MCP SDK dependencies installed"
+        fi
+      ''
+    );
+
+    home.activation.piInstall = lib.hm.dag.entryAfter [ "piMcpInstall" ] (
       if piInstall == [] then "" else ''
         # pi's npm:... installs use a wrapper that sets npm_config_prefix and
         # adds nodejs/npm to PATH, so no additional env setup needed here.
