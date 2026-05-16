@@ -4,15 +4,12 @@ let
   # on each home-manager switch, preserving any runtime changes pi has made
   # to other fields (lastChangelogVersion, theme, compaction, etc.).
   #
-  # For arrays (packages, extensions): nix-managed entries are added to the
-  # existing list (deduped), so runtime additions are preserved.
+  # For arrays (packages): nix-managed entries are added to the existing list
+  # (deduped), so runtime additions are preserved. Extensions are
+  # auto-discovered from ~/.pi/agent/extensions/, so no explicit paths needed.
   managedPiSettings = builtins.toJSON {
     defaultProvider = "deepseek";
     defaultModel = "deepseek-v4-flash";
-    extensions = [
-      "~/.pi/custom-extensions/notify.ts"
-      "~/.pi/custom-extensions/todo.ts"
-    ];
     models = {
       "deepseek-v4-flash" = {
         provider = "deepseek";
@@ -117,7 +114,7 @@ let
 in lib.mkMerge [
   # Extensions and settings deployed for any system with pi
   {
-    home.file.".pi/custom-extensions/notify.ts".source = ./extensions/pi/notify.ts;
+    home.file.".pi/agent/extensions/notify.ts".source = ./extensions/pi/notify.ts;
 
     home.activation.piSettingsMerge = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       mkdir -p $HOME/.pi/agent
@@ -183,7 +180,7 @@ in lib.mkMerge [
     };
 
     home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/AGENTS.md";
-    home.file.".pi/custom-extensions/todo.ts".source = "${pi-coding-agent}/lib/node_modules/pi-monorepo/examples/extensions/todo.ts";
+    home.file.".pi/agent/extensions/todo.ts".source = "${pi-coding-agent}/lib/node_modules/pi-monorepo/examples/extensions/todo.ts";
     # Note: pi looks for skills in ~/.agents/skills/ directly, so no symlink needed
 
     home.activation.piInstall = lib.hm.dag.entryAfter [ "piSettingsMerge" ] (
