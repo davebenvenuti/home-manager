@@ -205,7 +205,7 @@ in lib.mkMerge [
         echo "[home-manager] Installing MCP SDK dependencies..."
         cd "$HOME/.pi/custom-extensions/mcp"
         if [ -f package.json ]; then
-          npm install --omit=dev 2>&1 | tail -5
+          ${lib.getExe' pkgs.nodejs_22 "npm"} install --omit=dev 2>&1 | tail -5
           echo "[home-manager] MCP SDK dependencies installed"
         fi
       ''
